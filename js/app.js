@@ -1226,6 +1226,11 @@ document.getElementById('editor-reset').addEventListener('click', () => {
     });
 
     renderEditor();
+
+    // In gallery mode, auto-apply the reset to save original back to Firebase
+    if (editorState.mode === 'gallery') {
+        document.getElementById('editor-apply').click();
+    }
 });
 
 // Cancel
@@ -1731,7 +1736,8 @@ document.getElementById('confirm-delete').addEventListener('click', async () => 
                 }
             }
             showToast('Photo deleted', 'success');
-            loadPhotos();
+            await loadPhotos();
+            if (isAdminMode) await loadStagingPhotos();
         } else if (type === 'guestbook') {
             // Delete from Firestore
             await db.collection('guestbook').doc(id).delete();
