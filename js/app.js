@@ -426,8 +426,8 @@ function handleFiles(fileList) {
             showToast(`${file.name} exceeds 10MB limit`, 'error');
             return;
         }
-        if (selectedFiles.length >= 10) {
-            showToast('Maximum 10 photos at a time', 'warning');
+        if (selectedFiles.length >= 50) {
+            showToast('Maximum 50 photos at a time', 'warning');
             return;
         }
         selectedFiles.push(file);
