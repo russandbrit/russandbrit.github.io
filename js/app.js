@@ -219,12 +219,24 @@ async function loadPhotos() {
 
     try {
         // Include the main wedding photo as "official"
+        // Try to load its likes/commentCount from Firestore
+        let mainLikes = 0, mainCommentCount = 0;
+        try {
+            const mainDoc = await db.collection('photos').doc('main').get();
+            if (mainDoc.exists) {
+                mainLikes = mainDoc.data().likes || 0;
+                mainCommentCount = mainDoc.data().commentCount || 0;
+            }
+        } catch (e) { /* first time — doc doesn't exist yet */ }
+
         const officialPhotos = [{
             id: 'main',
             url: 'photos/main.png',
             name: 'Russ & Brit',
             caption: 'Our wedding day',
             type: 'official',
+            likes: mainLikes,
+            commentCount: mainCommentCount,
             timestamp: new Date('2025-01-01')
         }];
 
@@ -350,17 +362,16 @@ const photoDetailModal = document.getElementById('photo-detail-modal');
 
 // Toggle like on a photo
 async function toggleLike(photoId) {
-    if (photoId === 'main') return;
     const key = `liked_${photoId}`;
     const alreadyLiked = localStorage.getItem(key) === '1';
 
     try {
         const ref = db.collection('photos').doc(photoId);
         if (alreadyLiked) {
-            await ref.update({ likes: firebase.firestore.FieldValue.increment(-1) });
+            await ref.set({ likes: firebase.firestore.FieldValue.increment(-1) }, { merge: true });
             localStorage.removeItem(key);
         } else {
-            await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
+            await ref.set({ likes: firebase.firestore.FieldValue.increment(1) }, { merge: true });
             localStorage.setItem(key, '1');
         }
         await loadPhotos();
@@ -386,19 +397,12 @@ function openPhotoDetail(photo) {
     document.getElementById('photo-detail-name').textContent = photo.name || 'Unknown';
     document.getElementById('photo-detail-caption').textContent = photo.caption || '';
 
-    const isFirestorePhoto = photo.id !== 'main';
+    document.querySelector('.photo-detail-like-row').style.display = 'block';
+    document.querySelector('.comment-form').style.display = 'flex';
 
-    // Show/hide like and comment UI based on whether it's a Firestore photo
-    document.querySelector('.photo-detail-like-row').style.display = isFirestorePhoto ? 'block' : 'none';
-    document.querySelector('.comment-form').style.display = isFirestorePhoto ? 'flex' : 'none';
-
-    if (isFirestorePhoto) {
-        const liked = localStorage.getItem(`liked_${photo.id}`) === '1';
-        updateDetailLike(photo.likes || 0, liked);
-        loadComments(photo.id);
-    } else {
-        document.getElementById('comments-list').innerHTML = '<p class="comments-empty">Comments not available for official photos</p>';
-    }
+    const liked = localStorage.getItem(`liked_${photo.id}`) === '1';
+    updateDetailLike(photo.likes || 0, liked);
+    loadComments(photo.id);
 
     photoDetailModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -487,11 +491,9 @@ document.getElementById('comment-submit').addEventListener('click', async () => 
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-        // Update comment count (skip for non-Firestore photos)
-        if (currentDetailPhoto.id !== 'main') {
-            await db.collection('photos').doc(currentDetailPhoto.id)
-                .update({ commentCount: firebase.firestore.FieldValue.increment(1) });
-        }
+        // Update comment count
+        await db.collection('photos').doc(currentDetailPhoto.id)
+            .set({ commentCount: firebase.firestore.FieldValue.increment(1) }, { merge: true });
 
         textInput.value = '';
         loadComments(currentDetailPhoto.id);
@@ -522,7 +524,7 @@ async function deleteComment(photoId, commentId) {
         await db.collection('photos').doc(photoId)
             .collection('comments').doc(commentId).delete();
         await db.collection('photos').doc(photoId)
-            .update({ commentCount: firebase.firestore.FieldValue.increment(-1) });
+            .set({ commentCount: firebase.firestore.FieldValue.increment(-1) }, { merge: true });
         showToast('Comment deleted', 'success');
         loadComments(photoId);
         loadPhotos();
@@ -534,10 +536,10 @@ async function deleteComment(photoId, commentId) {
 
 // Admin: reset likes on current photo
 async function resetPhotoLikes() {
-    if (!currentDetailPhoto || currentDetailPhoto.id === 'main') return;
+    if (!currentDetailPhoto) return;
     try {
         await db.collection('photos').doc(currentDetailPhoto.id)
-            .update({ likes: 0 });
+            .set({ likes: 0 }, { merge: true });
         localStorage.removeItem(`liked_${currentDetailPhoto.id}`);
         updateDetailLike(0, false);
         await loadPhotos();
