@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-04
+
+### Added
+- Admin mode with passcode protection (lock icon in nav bar)
+- Delete buttons on gallery photos and guestbook entries (visible only in admin mode)
+- Confirm-delete modal to prevent accidental deletions
+- Firebase Storage cleanup when deleting photos or media entries
+- Admin passcode stored in `config.json` for easy management
+- Larger upload preview thumbnails (100px) with more visible edit button
+
 ## [1.2.0] - 2026-07-04
 
 ### Added

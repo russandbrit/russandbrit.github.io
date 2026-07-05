@@ -816,8 +816,8 @@ textarea {
 
 .upload-preview-item {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border-radius: var(--radius-sm);
     overflow: hidden;
     border: 2px solid var(--color-border);
@@ -1506,6 +1506,147 @@ textarea {
     }
 }
 
+/* ---------- Admin Mode ---------- */
+.admin-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--color-text-faint);
+    transition: all var(--duration-fast) ease;
+    flex-shrink: 0;
+    margin-left: var(--space-md);
+}
+
+.admin-toggle:hover {
+    color: var(--color-gold);
+    background: var(--color-gold-glow);
+}
+
+.admin-toggle.active {
+    color: var(--color-bg);
+    background: var(--color-gold);
+    box-shadow: 0 0 12px rgba(201, 168, 76, 0.4);
+}
+
+/* Modal Overlays */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    animation: lightbox-in 0.2s ease;
+}
+
+.modal-card {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+}
+
+.modal-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: var(--space-md);
+    color: var(--color-text);
+}
+
+.modal-desc {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xl);
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+}
+
+.modal-btn {
+    min-width: 100px;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.85rem;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #c53030, #e53e3e) !important;
+    box-shadow: 0 4px 20px rgba(229, 62, 62, 0.25) !important;
+}
+
+.btn-danger:hover {
+    box-shadow: 0 6px 30px rgba(229, 62, 62, 0.35) !important;
+}
+
+/* Admin delete buttons on gallery items (hidden by default) */
+.gallery-item-delete,
+.guestbook-entry-delete {
+    display: none;
+}
+
+body.admin-mode .gallery-item-delete {
+    display: flex;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(229, 62, 62, 0.9);
+    color: white;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: all var(--duration-fast) ease;
+}
+
+body.admin-mode .gallery-item-delete:hover {
+    background: #e53e3e;
+    transform: scale(1.1);
+}
+
+body.admin-mode .guestbook-entry-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    background: rgba(229, 62, 62, 0.15);
+    border: 1px solid rgba(229, 62, 62, 0.3);
+    color: var(--color-error);
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+body.admin-mode .guestbook-entry-delete:hover {
+    background: rgba(229, 62, 62, 0.25);
+    border-color: var(--color-error);
+}
+
+/* Admin mode indicator bar */
+body.admin-mode .nav {
+    border-bottom: 2px solid var(--color-gold);
+}
+
 /* ---------- Photo Editor Modal ---------- */
 .photo-editor {
     position: fixed;
@@ -1736,14 +1877,14 @@ textarea {
 /* Upload Preview Edit Button */
 .upload-preview-edit {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 22px;
-    height: 22px;
+    bottom: 4px;
+    left: 4px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(201, 168, 76, 0.9);
+    background: var(--color-gold);
     color: var(--color-bg);
-    font-size: 11px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1752,11 +1893,12 @@ textarea {
                 transform var(--duration-fast) ease;
     border: none;
     padding: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .upload-preview-edit:hover {
-    background: var(--color-gold);
-    transform: scale(1.1);
+    background: var(--color-gold-light);
+    transform: scale(1.15);
 }
 
 /* Editor Responsive */

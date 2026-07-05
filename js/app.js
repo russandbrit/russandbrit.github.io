@@ -277,8 +277,22 @@ function renderGallery() {
                 <p class="gallery-item-name">${escapeHtml(photo.name)}</p>
                 ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
             </div>
+            ${photo.type === 'guest' ? `<button class="gallery-item-delete" data-photo-id="${photo.id}" title="Delete photo">&times;</button>` : ''}
         `;
-        item.addEventListener('click', () => openLightbox(index));
+        // Click to open lightbox (but not if clicking delete)
+        item.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('gallery-item-delete')) {
+                openLightbox(index);
+            }
+        });
+        // Delete handler
+        const deleteBtn = item.querySelector('.gallery-item-delete');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                confirmDelete('photo', photo.id, photo.url, photo.name);
+            });
+        }
         galleryGrid.appendChild(item);
     });
 }
@@ -884,7 +898,7 @@ async function loadGuestbookEntries() {
             snapshot.docs.forEach(doc => {
                 const data = doc.data();
                 const date = data.timestamp?.toDate() || new Date();
-                const entryEl = createEntryElement(data, date);
+                const entryEl = createEntryElement(data, date, doc.id);
                 guestbookEntries.appendChild(entryEl);
             });
         }
@@ -901,7 +915,7 @@ async function loadGuestbookEntries() {
     }
 }
 
-function createEntryElement(data, date) {
+function createEntryElement(data, date, docId) {
     const div = document.createElement('div');
     div.className = 'guestbook-entry';
 
@@ -925,9 +939,18 @@ function createEntryElement(data, date) {
                 <p class="entry-time">${formatTimeAgo(date)}</p>
             </div>
             <span class="entry-type-badge">${typeIcons[data.type] || '💬'} ${typeLabels[data.type] || 'Text'}</span>
+            ${docId ? `<button class="guestbook-entry-delete" data-entry-id="${docId}">✕ Delete</button>` : ''}
         </div>
         <div class="entry-body">${bodyContent}</div>
     `;
+
+    // Delete handler
+    const deleteBtn = div.querySelector('.guestbook-entry-delete');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            confirmDelete('guestbook', docId, data.mediaUrl || null, data.name);
+        });
+    }
 
     return div;
 }
@@ -947,7 +970,7 @@ try {
                 snapshot.docs.forEach(doc => {
                     const data = doc.data();
                     const date = data.timestamp?.toDate() || new Date();
-                    const entryEl = createEntryElement(data, date);
+                    const entryEl = createEntryElement(data, date, doc.id);
                     guestbookEntries.appendChild(entryEl);
                 });
 
@@ -1175,3 +1198,142 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ==================== ADMIN MODE ====================
+
+let adminPasscode = null;
+let isAdminMode = false;
+let pendingDelete = null; // { type, id, mediaUrl, name }
+
+// Load admin passcode from config
+async function loadAdminConfig() {
+    try {
+        const response = await fetch('config.json');
+        const config = await response.json();
+        adminPasscode = config.adminPasscode || null;
+    } catch (e) {
+        console.log('Admin config not available');
+    }
+}
+loadAdminConfig();
+
+// Admin toggle button
+const adminToggleBtn = document.getElementById('admin-toggle');
+const adminModal = document.getElementById('admin-modal');
+const adminPasscodeInput = document.getElementById('admin-passcode-input');
+const confirmModal = document.getElementById('confirm-modal');
+
+adminToggleBtn.addEventListener('click', () => {
+    if (isAdminMode) {
+        // Exit admin mode
+        isAdminMode = false;
+        document.body.classList.remove('admin-mode');
+        adminToggleBtn.classList.remove('active');
+        showToast('Admin mode deactivated', 'success');
+    } else {
+        // Show passcode modal
+        adminPasscodeInput.value = '';
+        adminModal.style.display = 'flex';
+        setTimeout(() => adminPasscodeInput.focus(), 100);
+    }
+});
+
+// Admin modal submit
+document.getElementById('admin-modal-submit').addEventListener('click', () => {
+    const entered = adminPasscodeInput.value.trim();
+    if (!entered) {
+        showToast('Please enter the passcode', 'error');
+        return;
+    }
+    if (adminPasscode && entered !== adminPasscode) {
+        showToast('Incorrect passcode', 'error');
+        adminPasscodeInput.value = '';
+        adminPasscodeInput.focus();
+        return;
+    }
+    // Success
+    isAdminMode = true;
+    document.body.classList.add('admin-mode');
+    adminToggleBtn.classList.add('active');
+    adminModal.style.display = 'none';
+    showToast('Admin mode activated — you can now delete items', 'success');
+});
+
+// Admin modal cancel
+document.getElementById('admin-modal-cancel').addEventListener('click', () => {
+    adminModal.style.display = 'none';
+});
+
+// Enter key in passcode input
+adminPasscodeInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('admin-modal-submit').click();
+    }
+});
+
+// Confirm delete flow
+function confirmDelete(type, id, mediaUrl, name) {
+    pendingDelete = { type, id, mediaUrl, name };
+    const typeLabel = type === 'photo' ? 'photo' : 'guestbook entry';
+    document.getElementById('confirm-modal-message').textContent =
+        `Delete this ${typeLabel} from ${name || 'unknown'}? This cannot be undone.`;
+    confirmModal.style.display = 'flex';
+}
+
+document.getElementById('confirm-cancel').addEventListener('click', () => {
+    pendingDelete = null;
+    confirmModal.style.display = 'none';
+});
+
+document.getElementById('confirm-delete').addEventListener('click', async () => {
+    if (!pendingDelete) return;
+    const { type, id, mediaUrl } = pendingDelete;
+    confirmModal.style.display = 'none';
+
+    try {
+        if (type === 'photo') {
+            // Delete from Firestore
+            await db.collection('photos').doc(id).delete();
+            // Try to delete from Storage
+            if (mediaUrl && mediaUrl.includes('firebasestorage')) {
+                try {
+                    const storageRef = storage.refFromURL(mediaUrl);
+                    await storageRef.delete();
+                } catch (e) {
+                    console.log('Storage delete skipped:', e);
+                }
+            }
+            showToast('Photo deleted', 'success');
+            loadPhotos();
+        } else if (type === 'guestbook') {
+            // Delete from Firestore
+            await db.collection('guestbook').doc(id).delete();
+            // Try to delete media from Storage
+            if (mediaUrl && mediaUrl.includes('firebasestorage')) {
+                try {
+                    const storageRef = storage.refFromURL(mediaUrl);
+                    await storageRef.delete();
+                } catch (e) {
+                    console.log('Storage delete skipped:', e);
+                }
+            }
+            showToast('Guestbook entry deleted', 'success');
+            loadGuestbookEntries();
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        showToast('Failed to delete. Please try again.', 'error');
+    }
+
+    pendingDelete = null;
+});
+
+// Close modals on Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (adminModal.style.display !== 'none') adminModal.style.display = 'none';
+        if (confirmModal.style.display !== 'none') {
+            confirmModal.style.display = 'none';
+            pendingDelete = null;
+        }
+    }
+});
