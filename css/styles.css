@@ -2642,3 +2642,46 @@ body.admin-mode .nav {
         padding: var(--space-sm) var(--space-md);
     }
 }
+
+/* Staging multi-select */
+.staging-select-all-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    user-select: none;
+}
+
+.staging-select-all-wrap input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-gold);
+    cursor: pointer;
+}
+
+.staging-checkbox-wrap {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 4;
+    cursor: pointer;
+}
+
+.staging-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--color-gold);
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.gallery-item.staging-selected {
+    outline: 3px solid var(--color-gold);
+    outline-offset: -3px;
+}
+
+.staging-actions {
+    align-items: center;
+}

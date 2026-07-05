@@ -2156,6 +2156,7 @@ const stagingGrid = document.getElementById('staging-grid');
 const stagingEmpty = document.getElementById('staging-empty');
 const stagingCount = document.getElementById('staging-count');
 let stagingPhotos = [];
+let selectedStagingIds = new Set();
 
 async function loadStagingPhotos() {
     try {
@@ -2170,32 +2171,60 @@ async function loadStagingPhotos() {
             timestamp: doc.data().timestamp?.toDate() || new Date()
         }));
 
+        selectedStagingIds.clear();
         renderStaging();
     } catch (error) {
         console.error('Error loading staging photos:', error);
     }
 }
 
+function updateStagingSelection() {
+    const count = selectedStagingIds.size;
+    document.getElementById('staging-approve-selected').style.display = count > 0 ? 'inline-block' : 'none';
+    document.getElementById('staging-reject-selected').style.display = count > 0 ? 'inline-block' : 'none';
+    document.getElementById('staging-approve-selected').textContent = `✓ Approve Selected (${count})`;
+    document.getElementById('staging-reject-selected').textContent = `✕ Reject Selected (${count})`;
+    document.getElementById('staging-select-all').checked = count > 0 && count === stagingPhotos.length;
+}
+
 function renderStaging() {
     stagingGrid.innerHTML = '';
     stagingCount.textContent = `${stagingPhotos.length} pending`;
     stagingEmpty.style.display = stagingPhotos.length === 0 ? 'flex' : 'none';
+    updateStagingSelection();
 
     stagingPhotos.forEach(photo => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
+        const isSelected = selectedStagingIds.has(photo.id);
+        if (isSelected) item.classList.add('staging-selected');
         item.innerHTML = `
             <img src="${photo.url}" alt="${photo.caption || 'Pending photo'}" loading="lazy">
             <div class="gallery-item-overlay">
                 <p class="gallery-item-name">${escapeHtml(photo.name || 'Unknown')}</p>
                 ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
             </div>
+            <label class="staging-checkbox-wrap">
+                <input type="checkbox" class="staging-checkbox" data-photo-id="${photo.id}" ${isSelected ? 'checked' : ''}>
+            </label>
             <div class="staging-item-actions">
                 <button class="staging-btn staging-btn-approve" title="Approve">✓ Approve</button>
                 <button class="staging-btn staging-btn-edit" title="Edit">✎ Edit</button>
                 <button class="staging-btn staging-btn-reject" title="Reject">✕ Reject</button>
             </div>
         `;
+
+        // Checkbox toggle
+        item.querySelector('.staging-checkbox').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                selectedStagingIds.add(photo.id);
+                item.classList.add('staging-selected');
+            } else {
+                selectedStagingIds.delete(photo.id);
+                item.classList.remove('staging-selected');
+            }
+            updateStagingSelection();
+        });
 
         // Approve
         item.querySelector('.staging-btn-approve').addEventListener('click', () => approvePhoto(photo.id));
@@ -2209,6 +2238,67 @@ function renderStaging() {
         stagingGrid.appendChild(item);
     });
 }
+
+// Select all toggle
+document.getElementById('staging-select-all').addEventListener('change', (e) => {
+    if (e.target.checked) {
+        stagingPhotos.forEach(p => selectedStagingIds.add(p.id));
+    } else {
+        selectedStagingIds.clear();
+    }
+    renderStaging();
+});
+
+// Batch approve selected
+document.getElementById('staging-approve-selected').addEventListener('click', async () => {
+    if (selectedStagingIds.size === 0) return;
+    const count = selectedStagingIds.size;
+    const btn = document.getElementById('staging-approve-selected');
+    btn.disabled = true;
+    btn.textContent = 'Approving...';
+    try {
+        const batch = db.batch();
+        selectedStagingIds.forEach(id => {
+            batch.update(db.collection('photos').doc(id), { status: 'approved' });
+        });
+        await batch.commit();
+        showToast(`${count} photos approved! ✨`, 'success');
+        await loadStagingPhotos();
+        await loadPhotos();
+    } catch (e) {
+        console.error('Batch approve error:', e);
+        showToast('Failed to approve selected', 'error');
+    } finally {
+        btn.disabled = false;
+    }
+});
+
+// Batch reject selected
+document.getElementById('staging-reject-selected').addEventListener('click', async () => {
+    if (selectedStagingIds.size === 0) return;
+    const count = selectedStagingIds.size;
+    if (!confirm(`Reject and delete ${count} selected photos?`)) return;
+    const btn = document.getElementById('staging-reject-selected');
+    btn.disabled = true;
+    btn.textContent = 'Rejecting...';
+    try {
+        for (const id of selectedStagingIds) {
+            const photo = stagingPhotos.find(p => p.id === id);
+            if (photo && photo.url) {
+                try { await storage.refFromURL(photo.url).delete(); } catch (e) { /* ignore */ }
+            }
+            await db.collection('photos').doc(id).delete();
+        }
+        showToast(`${count} photos rejected`, 'success');
+        await loadStagingPhotos();
+        await loadPhotos();
+    } catch (e) {
+        console.error('Batch reject error:', e);
+        showToast('Failed to reject selected', 'error');
+    } finally {
+        btn.disabled = false;
+    }
+});
 
 async function approvePhoto(docId) {
     try {

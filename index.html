@@ -1,4 +1,4 @@
-<!-- v2.5.0 -->
+<!-- v2.6.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,6 +102,11 @@
         </div>
 
         <div class="staging-actions">
+            <label class="staging-select-all-wrap">
+                <input type="checkbox" id="staging-select-all"> <span>Select All</span>
+            </label>
+            <button class="btn btn-primary" id="staging-approve-selected" style="display:none;">✓ Approve Selected</button>
+            <button class="btn btn-danger" id="staging-reject-selected" style="display:none;">✕ Reject Selected</button>
             <button class="btn btn-primary" id="staging-approve-all">✓ Approve All</button>
             <span class="staging-count" id="staging-count">0 pending</span>
         </div>
