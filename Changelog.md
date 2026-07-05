@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Move arrows only visible in admin mode (gold highlight on hover)
 - Photo order persists across page reloads via Firestore
+- **Admin session persists** via sessionStorage — stays active across page reloads until explicit logout
 
 ## [2.3.0] - 2026-07-05
 
