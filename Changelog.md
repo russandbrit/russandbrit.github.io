@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-07-05
+
+### Added
+- **Likes** — Heart button on every gallery photo, stored in Firestore with localStorage dedup
+- **Comments** — Click any photo to open detail view with scrollable comment thread
+- **Photo Detail Modal** — Full-size image with sidebar showing uploader name, caption, like button, and comments
+- Comment form with name + text inputs, Enter key to post
+- Comment count badge (💬) on gallery items with comments
+- Likes toggle (click again to unlike)
+
 ## [2.1.0] - 2026-07-04
 
 ### Added

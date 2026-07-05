@@ -272,23 +272,40 @@ function renderGallery() {
         const item = document.createElement('div');
         item.className = 'gallery-item';
         item.dataset.index = index;
+        const likes = photo.likes || 0;
+        const commentCount = photo.commentCount || 0;
+        const isLiked = localStorage.getItem(`liked_${photo.id}`) === '1';
         item.innerHTML = `
             <img src="${photo.url}" alt="${photo.caption || 'Wedding photo'}" loading="lazy">
             <div class="gallery-item-overlay">
                 <p class="gallery-item-name">${escapeHtml(photo.name)}</p>
                 ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
             </div>
+            <button class="gallery-item-like ${isLiked ? 'liked' : ''}" data-photo-id="${photo.id}" title="Like">
+                <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span>${likes}</span>
+            </button>
+            ${commentCount > 0 ? `<span class="gallery-item-comments">💬 ${commentCount}</span>` : ''}
             ${photo.type === 'guest' ? `
                 <button class="gallery-item-delete" data-photo-id="${photo.id}" title="Delete photo">&times;</button>
                 <button class="gallery-item-edit" data-photo-id="${photo.id}" title="Edit photo">✎</button>
             ` : ''}
         `;
-        // Click to open lightbox (but not if clicking admin buttons)
+        // Click to open photo detail (but not if clicking buttons)
         item.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('gallery-item-delete') &&
-                !e.target.classList.contains('gallery-item-edit')) {
-                openLightbox(index);
+            if (!e.target.closest('.gallery-item-delete') &&
+                !e.target.closest('.gallery-item-edit') &&
+                !e.target.closest('.gallery-item-like')) {
+                openPhotoDetail(photo);
             }
+        });
+        // Like handler on gallery card
+        const likeBtn = item.querySelector('.gallery-item-like');
+        likeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleLike(photo.id);
         });
         // Delete handler
         const deleteBtn = item.querySelector('.gallery-item-delete');
@@ -324,6 +341,161 @@ filterBtns.forEach(btn => {
         currentFilter = btn.dataset.filter;
         renderGallery();
     });
+});
+
+// ==================== LIKES & COMMENTS ====================
+
+let currentDetailPhoto = null;
+const photoDetailModal = document.getElementById('photo-detail-modal');
+
+// Toggle like on a photo
+async function toggleLike(photoId) {
+    if (photoId === 'main') return;
+    const key = `liked_${photoId}`;
+    const alreadyLiked = localStorage.getItem(key) === '1';
+
+    try {
+        const ref = db.collection('photos').doc(photoId);
+        if (alreadyLiked) {
+            await ref.update({ likes: firebase.firestore.FieldValue.increment(-1) });
+            localStorage.removeItem(key);
+        } else {
+            await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
+            localStorage.setItem(key, '1');
+        }
+        await loadPhotos();
+        if (currentDetailPhoto && currentDetailPhoto.id === photoId) {
+            const doc = await ref.get();
+            updateDetailLike(doc.data().likes || 0, !alreadyLiked);
+        }
+    } catch (e) {
+        console.error('Like error:', e);
+    }
+}
+
+function updateDetailLike(count, liked) {
+    const btn = document.getElementById('photo-detail-like-btn');
+    document.getElementById('photo-detail-like-count').textContent = count;
+    btn.classList.toggle('liked', liked);
+}
+
+// Open photo detail modal
+function openPhotoDetail(photo) {
+    currentDetailPhoto = photo;
+    document.getElementById('photo-detail-img').src = photo.url;
+    document.getElementById('photo-detail-name').textContent = photo.name || 'Unknown';
+    document.getElementById('photo-detail-caption').textContent = photo.caption || '';
+
+    const liked = localStorage.getItem(`liked_${photo.id}`) === '1';
+    updateDetailLike(photo.likes || 0, liked);
+
+    photoDetailModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    loadComments(photo.id);
+}
+
+function closePhotoDetail() {
+    photoDetailModal.style.display = 'none';
+    document.body.style.overflow = '';
+    currentDetailPhoto = null;
+}
+
+document.getElementById('photo-detail-close').addEventListener('click', closePhotoDetail);
+photoDetailModal.addEventListener('click', (e) => {
+    if (e.target === photoDetailModal) closePhotoDetail();
+});
+
+document.getElementById('photo-detail-like-btn').addEventListener('click', () => {
+    if (currentDetailPhoto) toggleLike(currentDetailPhoto.id);
+});
+
+// Load comments
+async function loadComments(photoId) {
+    const list = document.getElementById('comments-list');
+    list.innerHTML = '<p class="comments-empty">Loading...</p>';
+
+    try {
+        const snapshot = await db.collection('photos').doc(photoId)
+            .collection('comments')
+            .orderBy('timestamp', 'asc')
+            .get();
+
+        if (snapshot.empty) {
+            list.innerHTML = '<p class="comments-empty">No comments yet — be the first!</p>';
+            return;
+        }
+
+        list.innerHTML = '';
+        snapshot.forEach(doc => {
+            const c = doc.data();
+            const time = c.timestamp?.toDate();
+            const timeStr = time ? time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+            const item = document.createElement('div');
+            item.className = 'comment-item';
+            item.innerHTML = `
+                <p class="comment-author">${escapeHtml(c.name)}</p>
+                <p class="comment-text">${escapeHtml(c.text)}</p>
+                <p class="comment-time">${timeStr}</p>
+            `;
+            list.appendChild(item);
+        });
+
+        const commentsDiv = document.getElementById('photo-detail-comments');
+        commentsDiv.scrollTop = commentsDiv.scrollHeight;
+    } catch (e) {
+        console.error('Load comments error:', e);
+        list.innerHTML = '<p class="comments-empty">Could not load comments</p>';
+    }
+}
+
+// Post comment
+document.getElementById('comment-submit').addEventListener('click', async () => {
+    if (!currentDetailPhoto) return;
+    const nameInput = document.getElementById('comment-name');
+    const textInput = document.getElementById('comment-text');
+    const name = nameInput.value.trim();
+    const text = textInput.value.trim();
+
+    if (!name) { showToast('Please enter your name', 'error'); nameInput.focus(); return; }
+    if (!text) { showToast('Please enter a comment', 'error'); textInput.focus(); return; }
+
+    const btn = document.getElementById('comment-submit');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+        await db.collection('photos').doc(currentDetailPhoto.id)
+            .collection('comments').add({
+                name: name,
+                text: text,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+        await db.collection('photos').doc(currentDetailPhoto.id)
+            .update({ commentCount: firebase.firestore.FieldValue.increment(1) });
+
+        textInput.value = '';
+        loadComments(currentDetailPhoto.id);
+        loadPhotos();
+        showToast('Comment posted! 💬', 'success');
+    } catch (e) {
+        console.error('Post comment error:', e);
+        showToast('Failed to post comment', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Post';
+    }
+});
+
+document.getElementById('comment-text').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('comment-submit').click();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && photoDetailModal.style.display !== 'none') {
+        closePhotoDetail();
+    }
 });
 
 // Lightbox
