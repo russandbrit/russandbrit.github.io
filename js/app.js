@@ -249,7 +249,7 @@ async function loadPhotos() {
         const guestPhotos = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-            type: 'guest',
+            type: doc.data().type || 'guest',
             timestamp: doc.data().timestamp?.toDate() || new Date()
         }));
 
@@ -404,6 +404,19 @@ function openPhotoDetail(photo) {
     updateDetailLike(photo.likes || 0, liked);
     loadComments(photo.id);
 
+    // Admin: show promote/demote button
+    const promoteBtn = document.getElementById('admin-promote-btn');
+    if (promoteBtn) {
+        if (isAdminMode && photo.id !== 'main') {
+            promoteBtn.style.display = 'inline-block';
+            const isOfficial = photo.type === 'official';
+            promoteBtn.textContent = isOfficial ? '↓ Demote to Guest' : '★ Promote to Official';
+            promoteBtn.className = isOfficial ? 'admin-promote-btn demote' : 'admin-promote-btn';
+        } else {
+            promoteBtn.style.display = 'none';
+        }
+    }
+
     photoDetailModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
@@ -547,6 +560,26 @@ async function resetPhotoLikes() {
     } catch (e) {
         console.error('Reset likes error:', e);
         showToast('Failed to reset likes', 'error');
+    }
+}
+
+// Admin: promote/demote photo type
+async function togglePhotoType() {
+    if (!currentDetailPhoto || currentDetailPhoto.id === 'main') return;
+    const newType = currentDetailPhoto.type === 'official' ? 'guest' : 'official';
+    try {
+        await db.collection('photos').doc(currentDetailPhoto.id)
+            .update({ type: newType });
+        currentDetailPhoto.type = newType;
+        const promoteBtn = document.getElementById('admin-promote-btn');
+        const isOfficial = newType === 'official';
+        promoteBtn.textContent = isOfficial ? '↓ Demote to Guest' : '★ Promote to Official';
+        promoteBtn.className = isOfficial ? 'admin-promote-btn demote' : 'admin-promote-btn';
+        await loadPhotos();
+        showToast(isOfficial ? 'Photo promoted to Official! ⭐' : 'Photo moved back to Guest', 'success');
+    } catch (e) {
+        console.error('Promote error:', e);
+        showToast('Failed to change photo type', 'error');
     }
 }
 
@@ -741,6 +774,7 @@ uploadForm.addEventListener('submit', async (e) => {
                 originalUrl: url,
                 name: name,
                 caption: caption,
+                type: 'guest',
                 status: 'pending',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });

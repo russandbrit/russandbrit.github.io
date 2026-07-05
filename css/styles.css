@@ -1068,6 +1068,35 @@ body.admin-mode .admin-reset-likes {
     align-items: center;
 }
 
+/* Admin promote/demote button */
+.admin-promote-btn {
+    display: inline-block;
+    margin-top: var(--space-sm);
+    background: none;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    color: var(--color-gold);
+    font-size: 0.7rem;
+    padding: 5px 14px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+.admin-promote-btn:hover {
+    background: rgba(201, 168, 76, 0.12);
+    border-color: var(--color-gold);
+}
+
+.admin-promote-btn.demote {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-muted);
+}
+
+.admin-promote-btn.demote:hover {
+    border-color: var(--color-text-muted);
+    background: rgba(255, 255, 255, 0.05);
+}
+
 /* Comment form */
 .comment-form {
     padding: var(--space-md) var(--space-lg);
