@@ -219,14 +219,11 @@ async function loadPhotos() {
 
     try {
         // Include the main wedding photo as "official"
-        // Try to load its likes/commentCount from Firestore
-        let mainLikes = 0, mainCommentCount = 0;
+        // Try to load its data from Firestore
+        let mainData = {};
         try {
             const mainDoc = await db.collection('photos').doc('main').get();
-            if (mainDoc.exists) {
-                mainLikes = mainDoc.data().likes || 0;
-                mainCommentCount = mainDoc.data().commentCount || 0;
-            }
+            if (mainDoc.exists) mainData = mainDoc.data();
         } catch (e) { /* first time — doc doesn't exist yet */ }
 
         const officialPhotos = [{
@@ -235,8 +232,10 @@ async function loadPhotos() {
             name: 'Russ & Brit',
             caption: 'Our wedding day',
             type: 'official',
-            likes: mainLikes,
-            commentCount: mainCommentCount,
+            likes: mainData.likes || 0,
+            commentCount: mainData.commentCount || 0,
+            order: mainData.order,
+            gallery: mainData.gallery || null,
             timestamp: new Date('2025-01-01')
         }];
 
