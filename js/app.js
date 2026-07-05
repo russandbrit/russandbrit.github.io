@@ -359,6 +359,8 @@ function renderGallery() {
             ${commentCount > 0 ? `<span class="gallery-item-comments">💬 ${commentCount}</span>` : ''}
             ${isGuest ? `
                 <button class="gallery-item-delete" data-photo-id="${photo.id}" title="Delete photo">&times;</button>
+            ` : ''}
+            ${photo.id !== 'main' ? `
                 <button class="gallery-item-edit" data-photo-id="${photo.id}" title="Edit photo">✎</button>
             ` : ''}
             <div class="gallery-item-move">
