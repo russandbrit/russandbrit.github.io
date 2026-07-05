@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-07-05
+
+### Added
+- **Hero Slideshow** — First 10 official photos rotate on the hero section with a smooth 1.5s crossfade, cycling every 6 seconds
+- `photos/main.png` is always the first slide
+
+### Changed
+- Main photo (`photos/main.png`) is now **locked** — cannot be assigned to any gallery or moved to galleries
+- Hero uses dual `<img>` elements for seamless crossfade transitions
+
 ## [2.6.0] - 2026-07-05
 
 ### Added

@@ -316,12 +316,20 @@ textarea {
 }
 
 .hero-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center 20%;
     transform: scale(1.05);
     animation: hero-zoom 20s ease-in-out infinite alternate;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.hero-img-active {
+    opacity: 1;
 }
 
 @keyframes hero-zoom {

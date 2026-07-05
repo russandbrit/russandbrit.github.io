@@ -262,6 +262,7 @@ async function loadPhotos() {
             return (a.timestamp || 0) - (b.timestamp || 0);
         });
         renderGallery();
+        updateHeroSlideshow();
     } catch (error) {
         console.error('Error loading photos:', error);
         // Still show the main photo if Firestore fails
@@ -276,6 +277,49 @@ async function loadPhotos() {
         renderGallery();
     } finally {
         galleryLoading.style.display = 'none';
+    }
+}
+
+// Hero slideshow — rotate first 10 official photos
+let heroSlideInterval = null;
+let heroSlideIndex = 0;
+let heroPhotos = [];
+
+function updateHeroSlideshow() {
+    const officials = allPhotos.filter(p => p.type === 'official');
+    heroPhotos = officials.slice(0, 10).map(p => p.url);
+    // Always include main.png at position 0 if not already there
+    if (heroPhotos.length === 0 || heroPhotos[0] !== 'photos/main.png') {
+        heroPhotos.unshift('photos/main.png');
+    }
+    // Only start slideshow if we have more than 1 photo
+    if (heroPhotos.length > 1 && !heroSlideInterval) {
+        heroSlideIndex = 0;
+        heroSlideInterval = setInterval(advanceHeroSlide, 6000);
+    } else if (heroPhotos.length <= 1 && heroSlideInterval) {
+        clearInterval(heroSlideInterval);
+        heroSlideInterval = null;
+    }
+}
+
+function advanceHeroSlide() {
+    heroSlideIndex = (heroSlideIndex + 1) % heroPhotos.length;
+    const imgA = document.getElementById('hero-img-a');
+    const imgB = document.getElementById('hero-img-b');
+    const isAActive = imgA.classList.contains('hero-img-active');
+    const incoming = isAActive ? imgB : imgA;
+    const outgoing = isAActive ? imgA : imgB;
+
+    incoming.src = heroPhotos[heroSlideIndex];
+    // Wait for image to load before fading
+    incoming.onload = () => {
+        incoming.classList.add('hero-img-active');
+        outgoing.classList.remove('hero-img-active');
+    };
+    // Fallback if already cached
+    if (incoming.complete) {
+        incoming.classList.add('hero-img-active');
+        outgoing.classList.remove('hero-img-active');
     }
 }
 
@@ -645,10 +689,10 @@ function openPhotoDetail(photo) {
         }
     }
 
-    // Admin: show gallery assign dropdown
+    // Admin: show gallery assign dropdown (not for main photo)
     const galleryAssignDiv = document.getElementById('admin-gallery-assign');
     if (galleryAssignDiv) {
-        if (isAdminMode) {
+        if (isAdminMode && photo.id !== 'main') {
             galleryAssignDiv.style.display = 'flex';
             populateGalleryAssign(photo.gallery || '');
         } else {
