@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-07-04
+
+### Fixed
+- Gallery photo editor CORS error — now fetches images as blobs to bypass cross-origin restrictions
+
+### Changed
+- Increased max simultaneous photo uploads from 10 to 50
+
+### Added
+- `cors.json` — Firebase Storage CORS config for the bucket (one-time setup via `gsutil`)
+
 ## [1.5.0] - 2026-07-04
 
 ### Added
