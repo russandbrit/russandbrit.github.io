@@ -297,12 +297,12 @@ function renderGallery() {
                 confirmDelete('photo', photo.id, photo.url, photo.name);
             });
         }
-        // Edit handler (admin)
+        // Edit handler (everyone, name required)
         const editBtn = item.querySelector('.gallery-item-edit');
         if (editBtn) {
             editBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                openGalleryPhotoEditor(photo);
+                requestEditorName(photo);
             });
         }
         galleryGrid.appendChild(item);
@@ -1639,5 +1639,67 @@ document.addEventListener('keydown', (e) => {
             confirmModal.style.display = 'none';
             pendingDelete = null;
         }
+        const nameModal = document.getElementById('editor-name-modal');
+        if (nameModal && nameModal.style.display !== 'none') nameModal.style.display = 'none';
+    }
+});
+
+// ==================== EDITOR NAME GATE ====================
+
+let pendingEditPhoto = null;
+const editorNameModal = document.getElementById('editor-name-modal');
+const editorNameInput = document.getElementById('editor-name-input');
+
+function requestEditorName(photo) {
+    // Admin skips name prompt
+    if (isAdminMode) {
+        openGalleryPhotoEditor(photo);
+        return;
+    }
+
+    // Check if name already provided this session
+    const savedName = sessionStorage.getItem('editorName');
+    if (savedName) {
+        openGalleryPhotoEditor(photo);
+        return;
+    }
+
+    // Show name prompt
+    pendingEditPhoto = photo;
+    editorNameInput.value = '';
+    editorNameModal.style.display = 'flex';
+    setTimeout(() => editorNameInput.focus(), 100);
+}
+
+document.getElementById('editor-name-submit').addEventListener('click', () => {
+    const name = editorNameInput.value.trim();
+    if (!name) {
+        showToast('Please enter your full name', 'error');
+        editorNameInput.focus();
+        return;
+    }
+    if (name.split(/\s+/).length < 2) {
+        showToast('Please enter your first and last name', 'error');
+        editorNameInput.focus();
+        return;
+    }
+    // Save name for the session
+    sessionStorage.setItem('editorName', name);
+    editorNameModal.style.display = 'none';
+
+    if (pendingEditPhoto) {
+        openGalleryPhotoEditor(pendingEditPhoto);
+        pendingEditPhoto = null;
+    }
+});
+
+document.getElementById('editor-name-cancel').addEventListener('click', () => {
+    editorNameModal.style.display = 'none';
+    pendingEditPhoto = null;
+});
+
+editorNameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('editor-name-submit').click();
     }
 });

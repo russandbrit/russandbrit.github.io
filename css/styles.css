@@ -1594,9 +1594,39 @@ textarea {
 
 /* Admin buttons on gallery items (hidden by default) */
 .gallery-item-delete,
-.gallery-item-edit,
 .guestbook-entry-delete {
     display: none;
+}
+
+/* Edit button — always available, shown on hover */
+.gallery-item-edit {
+    display: flex;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(201, 168, 76, 0.9);
+    color: var(--color-bg);
+    font-size: 15px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: all var(--duration-fast) ease;
+    opacity: 0;
+}
+
+.gallery-item:hover .gallery-item-edit {
+    opacity: 1;
+}
+
+.gallery-item-edit:hover {
+    background: var(--color-gold);
+    transform: scale(1.1);
 }
 
 body.admin-mode .gallery-item-delete {
@@ -1624,29 +1654,10 @@ body.admin-mode .gallery-item-delete:hover {
     transform: scale(1.1);
 }
 
+/* In admin mode, move edit button below delete and always show */
 body.admin-mode .gallery-item-edit {
-    display: flex;
-    position: absolute;
     top: 46px;
-    right: 8px;
-    z-index: 3;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(201, 168, 76, 0.9);
-    color: var(--color-bg);
-    font-size: 15px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    transition: all var(--duration-fast) ease;
-}
-
-body.admin-mode .gallery-item-edit:hover {
-    background: var(--color-gold);
-    transform: scale(1.1);
+    opacity: 1;
 }
 
 body.admin-mode .guestbook-entry-delete {

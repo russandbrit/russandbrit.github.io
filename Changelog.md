@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-04
+
+### Added
+- All users can now edit gallery photos (edit button appears on hover)
+- Full name prompt required before editing — validates first and last name
+- Name saved in sessionStorage so users only enter it once per visit
+- Admins bypass the name prompt when in admin mode
+
+### Changed
+- Gallery edit button moved from admin-only to always visible on hover
+- In admin mode, edit button shifts below delete button for clear separation
+
 ## [1.4.0] - 2026-07-04
 
 ### Added
