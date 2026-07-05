@@ -1278,6 +1278,7 @@ document.getElementById('editor-apply').addEventListener('click', async () => {
 
                 showToast('Photo updated! ✨', 'success');
                 loadPhotos();
+                if (isAdminMode) loadStagingPhotos();
             }
         } catch (error) {
             console.error('Gallery edit save error:', error);
