@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-07-04
+
+### Added
+- Client-side image-to-JPG conversion on upload using Canvas API (85% quality, white background fill for PNGs with transparency)
+
+### Removed
+- Upload passcode requirement — removed config.json, passcode input field, and validation logic to reduce friction for less tech-savvy family members
+
+### Fixed
+- Updated copyright year in footer from 2025 to 2026
+
 ## [1.0.0] - 2026-07-04
 
 ### Added

@@ -56,6 +56,48 @@ function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+/**
+ * Convert any image File/Blob to a JPEG Blob using the Canvas API.
+ * Preserves original dimensions. Quality defaults to 0.85 (85%).
+ * Returns a Promise that resolves with the JPEG Blob.
+ */
+function convertToJpg(file, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+
+            const ctx = canvas.getContext('2d');
+            // Fill white background (for PNGs with transparency)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        resolve(blob);
+                    } else {
+                        reject(new Error('Canvas toBlob failed'));
+                    }
+                },
+                'image/jpeg',
+                quality
+            );
+
+            // Clean up the object URL
+            URL.revokeObjectURL(img.src);
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(img.src);
+            reject(new Error('Failed to load image for conversion'));
+        };
+        img.src = URL.createObjectURL(file);
+    });
+}
+
 // ==================== PRELOADER ====================
 
 window.addEventListener('load', () => {
@@ -420,11 +462,17 @@ uploadForm.addEventListener('submit', async (e) => {
     try {
         for (const file of selectedFiles) {
             const fileId = generateId();
-            const ext = file.name.split('.').pop();
-            const storageRef = storage.ref(`photos/${fileId}.${ext}`);
 
-            // Upload to Firebase Storage
-            const uploadTask = await storageRef.put(file);
+            // Convert image to JPG before upload
+            progressText.textContent = `Converting ${uploaded + 1} of ${total} to JPG...`;
+            const jpgBlob = await convertToJpg(file);
+
+            const storageRef = storage.ref(`photos/${fileId}.jpg`);
+
+            // Upload converted JPG to Firebase Storage
+            const uploadTask = await storageRef.put(jpgBlob, {
+                contentType: 'image/jpeg'
+            });
             const url = await uploadTask.ref.getDownloadURL();
 
             // Save metadata to Firestore
