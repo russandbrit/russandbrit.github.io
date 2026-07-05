@@ -1015,7 +1015,8 @@ let editorState = {
     mode: 'upload',        // 'upload' or 'gallery'
     fileIndex: -1,
     galleryPhoto: null,    // photo object when editing gallery photos
-    originalImage: null,   // HTMLImageElement with original pixels
+    trueOriginal: null,    // unmodified image saved on editor open (for Reset)
+    originalImage: null,   // HTMLImageElement with current base pixels (changes after crop)
     rotation: 0,           // 0, 90, 180, 270
     brightness: 100,
     contrast: 100,
@@ -1044,6 +1045,7 @@ function openPhotoEditor(fileIndex) {
     const img = new Image();
     img.onload = () => {
         editorState.originalImage = img;
+        editorState.trueOriginal = img;
         renderEditor();
         photoEditorModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -1066,6 +1068,7 @@ async function openGalleryPhotoEditor(photo) {
         const img = new Image();
         img.onload = () => {
             editorState.originalImage = img;
+            editorState.trueOriginal = img;
             renderEditor();
             photoEditorModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -1201,8 +1204,11 @@ document.querySelectorAll('.editor-filter-btn').forEach(btn => {
     });
 });
 
-// Reset
+// Reset — restore to true original image (undo crop + all edits)
 document.getElementById('editor-reset').addEventListener('click', () => {
+    if (editorState.trueOriginal) {
+        editorState.originalImage = editorState.trueOriginal;
+    }
     editorState.rotation = 0;
     editorState.brightness = 100;
     editorState.contrast = 100;
