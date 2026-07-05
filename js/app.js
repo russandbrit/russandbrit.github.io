@@ -1508,6 +1508,7 @@ document.getElementById('crop-confirm').addEventListener('click', () => {
         editorState.saturation = 100;
         editorState.filter = 'none';
         resetEditorControls();
+        renderEditor();
         cancelCrop();
         showToast('Cropped!', 'success');
     };
