@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1] - 2026-07-05
+
+### Fixed
+- **Gallery thumbnails no longer crop images** — Removed forced `4:3` aspect ratio and `object-fit: cover` so photos display in their natural proportions without cutting off content
+- **Mobile photo detail shows full image** — Removed restrictive `40vh` max-height on the image area; images now scale up to `60vh` with `object-fit: contain` so nothing is cropped on phones
+- Modal content is now scrollable on mobile so comments/likes remain accessible below the image
+
+### Added
+- **Mobile navigation styles** — Hamburger menu now properly slides down with blur background on phones
+- **Mobile gallery grid** — 2-column layout on screens under 768px for better phone viewing
+
 ## [2.8.0] - 2026-07-05
 
 ### Added
