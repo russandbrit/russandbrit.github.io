@@ -281,9 +281,14 @@ async function loadPhotos() {
 }
 
 function renderGallery() {
-    filteredPhotos = currentFilter === 'all'
-        ? allPhotos
-        : allPhotos.filter(p => p.type === currentFilter);
+    if (currentFilter === 'all') {
+        filteredPhotos = allPhotos;
+    } else if (currentFilter === 'official' || currentFilter === 'guest') {
+        filteredPhotos = allPhotos.filter(p => p.type === currentFilter);
+    } else {
+        // Custom gallery filter
+        filteredPhotos = allPhotos.filter(p => p.gallery === currentFilter);
+    }
 
     galleryGrid.innerHTML = '';
     galleryEmpty.style.display = filteredPhotos.length === 0 ? 'flex' : 'none';
@@ -396,15 +401,188 @@ async function movePhoto(currentIndex, direction) {
     }
 }
 
-// Filter buttons
+// Filter buttons (static ones)
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
         renderGallery();
     });
 });
+
+// ==================== GALLERIES ====================
+
+let allGalleries = [];
+let editingGalleryId = null;
+
+async function loadGalleries() {
+    try {
+        const snapshot = await db.collection('galleries')
+            .orderBy('order', 'asc')
+            .get();
+        allGalleries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderGalleryTabs();
+    } catch (e) {
+        console.log('No galleries yet');
+        allGalleries = [];
+    }
+}
+
+function renderGalleryTabs() {
+    const container = document.getElementById('custom-gallery-tabs');
+    const divider = document.querySelector('.gallery-tab-divider');
+    container.innerHTML = '';
+
+    if (allGalleries.length > 0) {
+        divider.classList.add('has-tabs');
+    } else {
+        divider.classList.remove('has-tabs');
+    }
+
+    allGalleries.forEach(g => {
+        const wrap = document.createElement('div');
+        wrap.className = 'gallery-tab-wrap';
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.dataset.filter = g.id;
+        btn.textContent = g.name;
+        if (currentFilter === g.id) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = g.id;
+            renderGallery();
+        });
+        wrap.appendChild(btn);
+
+        // Admin edit icon
+        const editIcon = document.createElement('button');
+        editIcon.className = 'gallery-tab-edit';
+        editIcon.innerHTML = '\u270e';
+        editIcon.title = 'Edit gallery';
+        editIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openGalleryModal(g);
+        });
+        wrap.appendChild(editIcon);
+
+        container.appendChild(wrap);
+    });
+}
+
+// Gallery create/edit modal
+const galleryModal = document.getElementById('gallery-modal');
+const galleryNameInput = document.getElementById('gallery-name-input');
+
+document.getElementById('gallery-create-btn').addEventListener('click', () => {
+    openGalleryModal(null);
+});
+
+function openGalleryModal(gallery) {
+    editingGalleryId = gallery ? gallery.id : null;
+    document.getElementById('gallery-modal-title').textContent = gallery ? 'Edit Gallery' : 'Create Gallery';
+    document.getElementById('gallery-modal-submit').textContent = gallery ? 'Save' : 'Create';
+    document.getElementById('gallery-modal-delete').style.display = gallery ? 'inline-block' : 'none';
+    galleryNameInput.value = gallery ? gallery.name : '';
+    galleryModal.style.display = 'flex';
+    setTimeout(() => galleryNameInput.focus(), 100);
+}
+
+document.getElementById('gallery-modal-cancel').addEventListener('click', () => {
+    galleryModal.style.display = 'none';
+});
+
+document.getElementById('gallery-modal-submit').addEventListener('click', async () => {
+    const name = galleryNameInput.value.trim();
+    if (!name) { showToast('Please enter a gallery name', 'error'); return; }
+
+    try {
+        if (editingGalleryId) {
+            await db.collection('galleries').doc(editingGalleryId).update({ name });
+            showToast('Gallery renamed', 'success');
+        } else {
+            await db.collection('galleries').add({
+                name,
+                order: allGalleries.length,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showToast('Gallery created! \ud83c\udf89', 'success');
+        }
+        galleryModal.style.display = 'none';
+        await loadGalleries();
+    } catch (e) {
+        console.error('Gallery save error:', e);
+        showToast('Failed to save gallery', 'error');
+    }
+});
+
+document.getElementById('gallery-modal-delete').addEventListener('click', async () => {
+    if (!editingGalleryId) return;
+    if (!confirm('Delete this gallery? Photos will be unassigned but not deleted.')) return;
+
+    try {
+        // Unassign all photos from this gallery
+        const photos = await db.collection('photos')
+            .where('gallery', '==', editingGalleryId)
+            .get();
+        const batch = db.batch();
+        photos.forEach(doc => {
+            batch.update(doc.ref, { gallery: firebase.firestore.FieldValue.delete() });
+        });
+        await batch.commit();
+
+        await db.collection('galleries').doc(editingGalleryId).delete();
+        galleryModal.style.display = 'none';
+        currentFilter = 'all';
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('filter-all').classList.add('active');
+        await loadGalleries();
+        await loadPhotos();
+        showToast('Gallery deleted', 'success');
+    } catch (e) {
+        console.error('Gallery delete error:', e);
+        showToast('Failed to delete gallery', 'error');
+    }
+});
+
+// Gallery assign on photo detail
+const galleryAssignSelect = document.getElementById('gallery-assign-select');
+
+function populateGalleryAssign(currentGalleryId) {
+    galleryAssignSelect.innerHTML = '<option value="">None</option>';
+    allGalleries.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.id;
+        opt.textContent = g.name;
+        if (g.id === currentGalleryId) opt.selected = true;
+        galleryAssignSelect.appendChild(opt);
+    });
+}
+
+galleryAssignSelect.addEventListener('change', async () => {
+    if (!currentDetailPhoto) return;
+    const galleryId = galleryAssignSelect.value;
+    try {
+        if (galleryId) {
+            await db.collection('photos').doc(currentDetailPhoto.id)
+                .set({ gallery: galleryId }, { merge: true });
+        } else {
+            await db.collection('photos').doc(currentDetailPhoto.id)
+                .update({ gallery: firebase.firestore.FieldValue.delete() });
+        }
+        currentDetailPhoto.gallery = galleryId || null;
+        await loadPhotos();
+        const galleryName = allGalleries.find(g => g.id === galleryId)?.name || 'None';
+        showToast(`Assigned to: ${galleryName}`, 'success');
+    } catch (e) {
+        console.error('Gallery assign error:', e);
+        showToast('Failed to assign gallery', 'error');
+    }
+});
+
+// Load galleries on init
+loadGalleries();
 
 // ==================== LIKES & COMMENTS ====================
 
@@ -465,6 +643,17 @@ function openPhotoDetail(photo) {
             promoteBtn.className = isOfficial ? 'admin-promote-btn demote' : 'admin-promote-btn';
         } else {
             promoteBtn.style.display = 'none';
+        }
+    }
+
+    // Admin: show gallery assign dropdown
+    const galleryAssignDiv = document.getElementById('admin-gallery-assign');
+    if (galleryAssignDiv) {
+        if (isAdminMode) {
+            galleryAssignDiv.style.display = 'flex';
+            populateGalleryAssign(photo.gallery || '');
+        } else {
+            galleryAssignDiv.style.display = 'none';
         }
     }
 

@@ -718,6 +718,131 @@ textarea {
     box-shadow: var(--shadow-gold);
 }
 
+/* Gallery tab divider */
+.gallery-tab-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--color-border);
+    align-self: center;
+    display: none;
+}
+
+body.admin-mode .gallery-tab-divider,
+.gallery-tab-divider.has-tabs {
+    display: block;
+}
+
+#custom-gallery-tabs {
+    display: contents;
+}
+
+/* Gallery tab with admin edit */
+.gallery-tab-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.gallery-tab-edit {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    background: rgba(201, 168, 76, 0.9);
+    border: none;
+    border-radius: 50%;
+    color: var(--color-bg);
+    font-size: 0.55rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+body.admin-mode .gallery-tab-edit {
+    display: flex;
+}
+
+.gallery-tab-edit:hover {
+    background: var(--color-gold);
+    transform: scale(1.2);
+}
+
+/* Create gallery button */
+.gallery-create-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px dashed var(--color-gold);
+    background: none;
+    color: var(--color-gold);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+    display: none;
+}
+
+body.admin-mode .gallery-create-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-create-btn:hover {
+    background: rgba(201, 168, 76, 0.12);
+    border-style: solid;
+    transform: scale(1.1);
+}
+
+/* Gallery assign dropdown */
+.admin-gallery-assign {
+    margin-top: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.gallery-assign-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+}
+
+.gallery-assign-select {
+    flex: 1;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    color: var(--color-text);
+    font-size: 0.8rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+}
+
+.gallery-assign-select:focus {
+    outline: none;
+    border-color: var(--color-gold);
+}
+
+/* btn-danger */
+.btn-danger {
+    background: #e53e3e;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+.btn-danger:hover {
+    background: #c53030;
+}
+
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

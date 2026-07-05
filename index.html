@@ -1,4 +1,4 @@
-<!-- v2.4.0 -->
+<!-- v2.5.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -129,6 +129,9 @@
             <button class="filter-btn active" data-filter="all" id="filter-all">All Photos</button>
             <button class="filter-btn" data-filter="official" id="filter-official">Official</button>
             <button class="filter-btn" data-filter="guest" id="filter-guest">Guest Uploads</button>
+            <span class="gallery-tab-divider"></span>
+            <div id="custom-gallery-tabs"><!-- Dynamic gallery tabs --></div>
+            <button class="gallery-create-btn" id="gallery-create-btn" title="Create Gallery" style="display:none;">+</button>
         </div>
 
         <!-- Gallery Grid -->
@@ -477,6 +480,12 @@
                     <h3 class="photo-detail-name" id="photo-detail-name"></h3>
                     <p class="photo-detail-caption" id="photo-detail-caption"></p>
                     <button class="admin-promote-btn" id="admin-promote-btn" onclick="togglePhotoType()" style="display:none;">★ Promote to Official</button>
+                    <div class="admin-gallery-assign" id="admin-gallery-assign" style="display:none;">
+                        <label class="gallery-assign-label">Gallery:</label>
+                        <select id="gallery-assign-select" class="gallery-assign-select">
+                            <option value="">None</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="photo-detail-like-row">
                     <button class="photo-like-btn" id="photo-detail-like-btn">
@@ -500,6 +509,21 @@
                         <button class="btn btn-primary comment-submit" id="comment-submit">Post</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== GALLERY CREATE/EDIT MODAL ===== -->
+    <div id="gallery-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card">
+            <h3 class="modal-title" id="gallery-modal-title">Create Gallery</h3>
+            <div class="form-group">
+                <input type="text" id="gallery-name-input" placeholder="Gallery name (e.g. Ceremony, Reception)" autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="gallery-modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="gallery-modal-submit">Create</button>
+                <button class="btn btn-danger" id="gallery-modal-delete" style="display:none;">Delete Gallery</button>
             </div>
         </div>
     </div>
