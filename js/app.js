@@ -254,6 +254,14 @@ async function loadPhotos() {
         }));
 
         allPhotos = [...officialPhotos, ...guestPhotos];
+
+        // Sort by order field (lower = first), fallback to timestamp
+        allPhotos.sort((a, b) => {
+            const orderA = a.order !== undefined ? a.order : Infinity;
+            const orderB = b.order !== undefined ? b.order : Infinity;
+            if (orderA !== orderB) return orderA - orderB;
+            return (a.timestamp || 0) - (b.timestamp || 0);
+        });
         renderGallery();
     } catch (error) {
         console.error('Error loading photos:', error);
@@ -287,6 +295,7 @@ function renderGallery() {
         const likes = photo.likes || 0;
         const commentCount = photo.commentCount || 0;
         const isLiked = localStorage.getItem(`liked_${photo.id}`) === '1';
+        const isGuest = photo.type === 'guest';
         item.innerHTML = `
             <img src="${photo.url}" alt="${photo.caption || 'Wedding photo'}" loading="lazy">
             <div class="gallery-item-overlay">
@@ -300,16 +309,21 @@ function renderGallery() {
                 <span>${likes}</span>
             </button>
             ${commentCount > 0 ? `<span class="gallery-item-comments">💬 ${commentCount}</span>` : ''}
-            ${photo.type === 'guest' ? `
+            ${isGuest ? `
                 <button class="gallery-item-delete" data-photo-id="${photo.id}" title="Delete photo">&times;</button>
                 <button class="gallery-item-edit" data-photo-id="${photo.id}" title="Edit photo">✎</button>
             ` : ''}
+            <div class="gallery-item-move">
+                <button class="move-btn move-left" title="Move left">◄</button>
+                <button class="move-btn move-right" title="Move right">►</button>
+            </div>
         `;
         // Click to open photo detail (but not if clicking buttons)
         item.addEventListener('click', (e) => {
             if (!e.target.closest('.gallery-item-delete') &&
                 !e.target.closest('.gallery-item-edit') &&
-                !e.target.closest('.gallery-item-like')) {
+                !e.target.closest('.gallery-item-like') &&
+                !e.target.closest('.gallery-item-move')) {
                 openPhotoDetail(photo);
             }
         });
@@ -335,6 +349,15 @@ function renderGallery() {
                 requestEditorName(photo);
             });
         }
+        // Move handlers (admin only)
+        item.querySelector('.move-left').addEventListener('click', (e) => {
+            e.stopPropagation();
+            movePhoto(index, -1);
+        });
+        item.querySelector('.move-right').addEventListener('click', (e) => {
+            e.stopPropagation();
+            movePhoto(index, 1);
+        });
         galleryGrid.appendChild(item);
     });
 }
@@ -343,6 +366,34 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Admin: move photo left/right in gallery
+async function movePhoto(currentIndex, direction) {
+    if (!isAdminMode) return;
+    const targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= filteredPhotos.length) return;
+
+    const photoA = filteredPhotos[currentIndex];
+    const photoB = filteredPhotos[targetIndex];
+
+    // Assign order values if they don't exist
+    const orderA = photoA.order !== undefined ? photoA.order : currentIndex;
+    const orderB = photoB.order !== undefined ? photoB.order : targetIndex;
+
+    try {
+        // Swap order values
+        const refA = db.collection('photos').doc(photoA.id);
+        const refB = db.collection('photos').doc(photoB.id);
+        await refA.set({ order: orderB }, { merge: true });
+        await refB.set({ order: orderA }, { merge: true });
+
+        await loadPhotos();
+        showToast('Photo moved', 'success');
+    } catch (e) {
+        console.error('Move photo error:', e);
+        showToast('Failed to move photo', 'error');
+    }
 }
 
 // Filter buttons

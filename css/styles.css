@@ -837,6 +837,43 @@ textarea {
     pointer-events: none;
 }
 
+/* Move buttons (admin only) */
+.gallery-item-move {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: none;
+    gap: 4px;
+}
+
+body.admin-mode .gallery-item-move {
+    display: flex;
+}
+
+.move-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--duration-fast) ease;
+    backdrop-filter: blur(4px);
+}
+
+.move-btn:hover {
+    background: rgba(201, 168, 76, 0.8);
+    border-color: var(--color-gold);
+    transform: scale(1.15);
+}
+
 /* ---------- Photo Detail Modal ---------- */
 .photo-detail-modal {
     position: fixed;
