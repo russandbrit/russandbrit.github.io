@@ -1277,8 +1277,9 @@ document.getElementById('editor-apply').addEventListener('click', async () => {
                 }
 
                 showToast('Photo updated! ✨', 'success');
-                loadPhotos();
-                if (isAdminMode) loadStagingPhotos();
+                // Wait for grids to fully reload with new URLs before closing
+                await loadPhotos();
+                if (isAdminMode) await loadStagingPhotos();
             }
         } catch (error) {
             console.error('Gallery edit save error:', error);
