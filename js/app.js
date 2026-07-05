@@ -372,7 +372,7 @@ function renderGallery() {
                 !e.target.closest('.gallery-item-edit') &&
                 !e.target.closest('.gallery-item-like') &&
                 !e.target.closest('.gallery-item-move')) {
-                openPhotoDetail(photo);
+                openPhotoDetail(photo, 'gallery', index);
             }
         });
         // Like handler on gallery card
@@ -630,6 +630,8 @@ loadGalleries();
 // ==================== LIKES & COMMENTS ====================
 
 let currentDetailPhoto = null;
+let detailSource = 'gallery'; // 'gallery' or 'staging'
+let detailIndex = 0;
 const photoDetailModal = document.getElementById('photo-detail-modal');
 
 // Toggle like on a photo
@@ -662,8 +664,15 @@ function updateDetailLike(count, liked) {
     btn.classList.toggle('liked', liked);
 }
 
+// Get the photo list for the current detail source
+function getDetailList() {
+    return detailSource === 'staging' ? stagingPhotos : filteredPhotos;
+}
+
 // Open photo detail modal
-function openPhotoDetail(photo) {
+function openPhotoDetail(photo, source, index) {
+    if (source !== undefined) detailSource = source;
+    if (index !== undefined) detailIndex = index;
     currentDetailPhoto = photo;
     document.getElementById('photo-detail-img').src = photo.url;
     document.getElementById('photo-detail-name').textContent = photo.name || 'Unknown';
@@ -700,8 +709,26 @@ function openPhotoDetail(photo) {
         }
     }
 
+    // Show/hide staging actions
+    const stagingActionsDiv = document.getElementById('photo-detail-staging-actions');
+    stagingActionsDiv.style.display = (detailSource === 'staging') ? 'flex' : 'none';
+
+    // Show/hide prev/next (hide if only 1 photo in list)
+    const list = getDetailList();
+    const showNav = list.length > 1;
+    document.getElementById('photo-detail-prev').style.display = showNav ? 'flex' : 'none';
+    document.getElementById('photo-detail-next').style.display = showNav ? 'flex' : 'none';
+
     photoDetailModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+}
+
+// Navigate to prev/next photo in the detail modal
+function navigateDetail(direction) {
+    const list = getDetailList();
+    if (list.length <= 1) return;
+    detailIndex = (detailIndex + direction + list.length) % list.length;
+    openPhotoDetail(list[detailIndex]);
 }
 
 function closePhotoDetail() {
@@ -715,8 +742,38 @@ photoDetailModal.addEventListener('click', (e) => {
     if (e.target === photoDetailModal) closePhotoDetail();
 });
 
+// Prev/next buttons
+document.getElementById('photo-detail-prev').addEventListener('click', () => navigateDetail(-1));
+document.getElementById('photo-detail-next').addEventListener('click', () => navigateDetail(1));
+
 document.getElementById('photo-detail-like-btn').addEventListener('click', () => {
     if (currentDetailPhoto) toggleLike(currentDetailPhoto.id);
+});
+
+// Staging actions inside detail modal
+document.getElementById('detail-staging-approve').addEventListener('click', async () => {
+    if (!currentDetailPhoto) return;
+    const photoId = currentDetailPhoto.id;
+    await approvePhoto(photoId);
+    // Advance to next or close if none left
+    const list = getDetailList();
+    if (list.length === 0) {
+        closePhotoDetail();
+    } else {
+        detailIndex = Math.min(detailIndex, list.length - 1);
+        openPhotoDetail(list[detailIndex]);
+    }
+});
+
+document.getElementById('detail-staging-edit').addEventListener('click', () => {
+    if (!currentDetailPhoto) return;
+    closePhotoDetail();
+    openGalleryPhotoEditor(currentDetailPhoto);
+});
+
+document.getElementById('detail-staging-reject').addEventListener('click', () => {
+    if (!currentDetailPhoto) return;
+    confirmDelete('photo', currentDetailPhoto.id, currentDetailPhoto.url, currentDetailPhoto.name);
 });
 
 // Load comments
@@ -809,8 +866,10 @@ document.getElementById('comment-text').addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && photoDetailModal.style.display !== 'none') {
-        closePhotoDetail();
+    if (photoDetailModal.style.display !== 'none') {
+        if (e.key === 'Escape') closePhotoDetail();
+        if (e.key === 'ArrowLeft') navigateDetail(-1);
+        if (e.key === 'ArrowRight') navigateDetail(1);
     }
 });
 
@@ -2237,7 +2296,7 @@ function renderStaging() {
     stagingEmpty.style.display = stagingPhotos.length === 0 ? 'flex' : 'none';
     updateStagingSelection();
 
-    stagingPhotos.forEach(photo => {
+    stagingPhotos.forEach((photo, sIndex) => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
         const isSelected = selectedStagingIds.has(photo.id);
@@ -2262,7 +2321,7 @@ function renderStaging() {
         item.addEventListener('click', (e) => {
             if (!e.target.closest('.staging-item-actions') &&
                 !e.target.closest('.staging-checkbox-wrap')) {
-                openPhotoDetail(photo);
+                openPhotoDetail(photo, 'staging', sIndex);
             }
         });
 

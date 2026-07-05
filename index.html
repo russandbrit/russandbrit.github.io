@@ -1,4 +1,4 @@
-<!-- v2.8.2 -->
+<!-- v2.9.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -478,6 +478,8 @@
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
         </button>
+        <button class="photo-detail-nav photo-detail-prev" id="photo-detail-prev" aria-label="Previous photo">&#8249;</button>
+        <button class="photo-detail-nav photo-detail-next" id="photo-detail-next" aria-label="Next photo">&#8250;</button>
         <div class="photo-detail-content">
             <div class="photo-detail-image-wrap">
                 <img id="photo-detail-img" src="" alt="">
@@ -493,6 +495,12 @@
                             <option value="">None</option>
                         </select>
                     </div>
+                </div>
+                <!-- Staging Actions (shown only for pending photos) -->
+                <div class="photo-detail-staging-actions" id="photo-detail-staging-actions" style="display:none;">
+                    <button class="btn btn-staging-approve" id="detail-staging-approve">✓ Approve</button>
+                    <button class="btn btn-staging-edit" id="detail-staging-edit">✎ Edit</button>
+                    <button class="btn btn-staging-reject" id="detail-staging-reject">✕ Reject</button>
                 </div>
                 <div class="photo-detail-like-row">
                     <button class="photo-like-btn" id="photo-detail-like-btn">

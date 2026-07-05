@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-07-05
+
+### Added
+- **Prev/Next navigation in photo detail modal** — Arrow buttons to cycle through photos without closing the modal; works for both gallery and staging views
+- **Keyboard navigation** — Left/Right arrow keys navigate between photos in the detail modal
+- **Staging actions in detail modal** — Approve, Edit, and Reject buttons appear in the sidebar when viewing pending photos, allowing full moderation without leaving the modal
+- Approve auto-advances to the next pending photo; closes modal when all are processed
+
 ## [2.8.2] - 2026-07-05
 
 ### Added

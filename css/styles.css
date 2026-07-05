@@ -1042,6 +1042,84 @@ body.admin-mode .gallery-item-move {
     transform: scale(1.1);
 }
 
+/* Prev/Next nav arrows */
+.photo-detail-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--duration-fast) ease;
+    backdrop-filter: blur(4px);
+    line-height: 1;
+}
+
+.photo-detail-nav:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.photo-detail-prev { left: 16px; }
+.photo-detail-next { right: 16px; }
+
+/* Staging actions bar in detail modal */
+.photo-detail-staging-actions {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.btn-staging-approve,
+.btn-staging-edit,
+.btn-staging-reject {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    padding: 10px 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+.btn-staging-approve {
+    background: rgba(72, 187, 120, 0.15);
+    color: #48bb78;
+}
+.btn-staging-approve:hover {
+    background: rgba(72, 187, 120, 0.3);
+}
+
+.btn-staging-edit {
+    background: rgba(201, 168, 76, 0.15);
+    color: var(--color-gold);
+}
+.btn-staging-edit:hover {
+    background: rgba(201, 168, 76, 0.3);
+}
+
+.btn-staging-reject {
+    background: rgba(229, 62, 62, 0.15);
+    color: #e53e3e;
+}
+.btn-staging-reject:hover {
+    background: rgba(229, 62, 62, 0.3);
+}
+
 .photo-detail-content {
     display: flex;
     max-width: 1100px;
@@ -1370,6 +1448,15 @@ body.admin-mode .admin-reset-likes {
     }
     .nav-toggle {
         display: flex;
+    }
+
+    /* Detail modal nav arrows on mobile */
+    .photo-detail-prev { left: 8px; }
+    .photo-detail-next { right: 8px; }
+    .photo-detail-nav {
+        width: 36px;
+        height: 36px;
+        font-size: 1.4rem;
     }
 }
 
