@@ -386,13 +386,22 @@ function openPhotoDetail(photo) {
     document.getElementById('photo-detail-name').textContent = photo.name || 'Unknown';
     document.getElementById('photo-detail-caption').textContent = photo.caption || '';
 
-    const liked = localStorage.getItem(`liked_${photo.id}`) === '1';
-    updateDetailLike(photo.likes || 0, liked);
+    const isFirestorePhoto = photo.id !== 'main';
+
+    // Show/hide like and comment UI based on whether it's a Firestore photo
+    document.querySelector('.photo-detail-like-row').style.display = isFirestorePhoto ? 'block' : 'none';
+    document.querySelector('.comment-form').style.display = isFirestorePhoto ? 'flex' : 'none';
+
+    if (isFirestorePhoto) {
+        const liked = localStorage.getItem(`liked_${photo.id}`) === '1';
+        updateDetailLike(photo.likes || 0, liked);
+        loadComments(photo.id);
+    } else {
+        document.getElementById('comments-list').innerHTML = '<p class="comments-empty">Comments not available for official photos</p>';
+    }
 
     photoDetailModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-
-    loadComments(photo.id);
 }
 
 function closePhotoDetail() {
@@ -437,7 +446,13 @@ async function loadComments(photoId) {
                 <p class="comment-author">${escapeHtml(c.name)}</p>
                 <p class="comment-text">${escapeHtml(c.text)}</p>
                 <p class="comment-time">${timeStr}</p>
+                ${isAdminMode ? `<button class="comment-delete-btn" data-comment-id="${doc.id}" title="Delete comment">✕</button>` : ''}
             `;
+            // Admin delete comment
+            const delBtn = item.querySelector('.comment-delete-btn');
+            if (delBtn) {
+                delBtn.addEventListener('click', () => deleteComment(photoId, doc.id));
+            }
             list.appendChild(item);
         });
 
@@ -472,8 +487,11 @@ document.getElementById('comment-submit').addEventListener('click', async () => 
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-        await db.collection('photos').doc(currentDetailPhoto.id)
-            .update({ commentCount: firebase.firestore.FieldValue.increment(1) });
+        // Update comment count (skip for non-Firestore photos)
+        if (currentDetailPhoto.id !== 'main') {
+            await db.collection('photos').doc(currentDetailPhoto.id)
+                .update({ commentCount: firebase.firestore.FieldValue.increment(1) });
+        }
 
         textInput.value = '';
         loadComments(currentDetailPhoto.id);
@@ -497,6 +515,38 @@ document.addEventListener('keydown', (e) => {
         closePhotoDetail();
     }
 });
+
+// Admin: delete a comment
+async function deleteComment(photoId, commentId) {
+    try {
+        await db.collection('photos').doc(photoId)
+            .collection('comments').doc(commentId).delete();
+        await db.collection('photos').doc(photoId)
+            .update({ commentCount: firebase.firestore.FieldValue.increment(-1) });
+        showToast('Comment deleted', 'success');
+        loadComments(photoId);
+        loadPhotos();
+    } catch (e) {
+        console.error('Delete comment error:', e);
+        showToast('Failed to delete comment', 'error');
+    }
+}
+
+// Admin: reset likes on current photo
+async function resetPhotoLikes() {
+    if (!currentDetailPhoto || currentDetailPhoto.id === 'main') return;
+    try {
+        await db.collection('photos').doc(currentDetailPhoto.id)
+            .update({ likes: 0 });
+        localStorage.removeItem(`liked_${currentDetailPhoto.id}`);
+        updateDetailLike(0, false);
+        await loadPhotos();
+        showToast('Likes reset to 0', 'success');
+    } catch (e) {
+        console.error('Reset likes error:', e);
+        showToast('Failed to reset likes', 'error');
+    }
+}
 
 // Lightbox
 function openLightbox(index) {

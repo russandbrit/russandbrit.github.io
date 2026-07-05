@@ -1016,6 +1016,58 @@ textarea {
     padding: var(--space-lg) 0;
 }
 
+/* Comment item with admin delete */
+.comment-item {
+    position: relative;
+}
+
+.comment-delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    background: none;
+    border: none;
+    color: rgba(229, 62, 62, 0.6);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all var(--duration-fast) ease;
+}
+
+.comment-delete-btn:hover {
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.1);
+}
+
+/* Admin reset likes button */
+.admin-reset-likes {
+    background: none;
+    border: 1px solid rgba(229, 62, 62, 0.3);
+    color: rgba(229, 62, 62, 0.7);
+    font-size: 0.7rem;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+    margin-left: auto;
+}
+
+.admin-reset-likes:hover {
+    border-color: #e53e3e;
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.08);
+}
+
+body.admin-mode .admin-reset-likes {
+    display: inline-block !important;
+}
+
+.photo-detail-like-row {
+    display: flex;
+    align-items: center;
+}
+
 /* Comment form */
 .comment-form {
     padding: var(--space-md) var(--space-lg);
