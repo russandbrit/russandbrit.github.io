@@ -277,11 +277,15 @@ function renderGallery() {
                 <p class="gallery-item-name">${escapeHtml(photo.name)}</p>
                 ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
             </div>
-            ${photo.type === 'guest' ? `<button class="gallery-item-delete" data-photo-id="${photo.id}" title="Delete photo">&times;</button>` : ''}
+            ${photo.type === 'guest' ? `
+                <button class="gallery-item-delete" data-photo-id="${photo.id}" title="Delete photo">&times;</button>
+                <button class="gallery-item-edit" data-photo-id="${photo.id}" title="Edit photo">✎</button>
+            ` : ''}
         `;
-        // Click to open lightbox (but not if clicking delete)
+        // Click to open lightbox (but not if clicking admin buttons)
         item.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('gallery-item-delete')) {
+            if (!e.target.classList.contains('gallery-item-delete') &&
+                !e.target.classList.contains('gallery-item-edit')) {
                 openLightbox(index);
             }
         });
@@ -291,6 +295,14 @@ function renderGallery() {
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 confirmDelete('photo', photo.id, photo.url, photo.name);
+            });
+        }
+        // Edit handler (admin)
+        const editBtn = item.querySelector('.gallery-item-edit');
+        if (editBtn) {
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openGalleryPhotoEditor(photo);
             });
         }
         galleryGrid.appendChild(item);
@@ -998,7 +1010,9 @@ const editorCtx = editorCanvas.getContext('2d');
 
 // Editor state
 let editorState = {
+    mode: 'upload',        // 'upload' or 'gallery'
     fileIndex: -1,
+    galleryPhoto: null,    // photo object when editing gallery photos
     originalImage: null,   // HTMLImageElement with original pixels
     rotation: 0,           // 0, 90, 180, 270
     brightness: 100,
@@ -1018,23 +1032,10 @@ const filterPresets = {
 };
 
 function openPhotoEditor(fileIndex) {
+    editorState.mode = 'upload';
     editorState.fileIndex = fileIndex;
-    editorState.rotation = 0;
-    editorState.brightness = 100;
-    editorState.contrast = 100;
-    editorState.saturation = 100;
-    editorState.filter = 'none';
-
-    // Reset UI controls
-    document.getElementById('editor-brightness').value = 100;
-    document.getElementById('editor-contrast').value = 100;
-    document.getElementById('editor-saturation').value = 100;
-    document.getElementById('brightness-value').textContent = '100%';
-    document.getElementById('contrast-value').textContent = '100%';
-    document.getElementById('saturation-value').textContent = '100%';
-    document.querySelectorAll('.editor-filter-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.filter === 'none');
-    });
+    editorState.galleryPhoto = null;
+    resetEditorControls();
 
     // Load the image
     const file = selectedFiles[fileIndex];
@@ -1048,10 +1049,51 @@ function openPhotoEditor(fileIndex) {
     img.src = URL.createObjectURL(file);
 }
 
+function openGalleryPhotoEditor(photo) {
+    editorState.mode = 'gallery';
+    editorState.fileIndex = -1;
+    editorState.galleryPhoto = photo;
+    resetEditorControls();
+
+    // Load the image from URL
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+        editorState.originalImage = img;
+        renderEditor();
+        photoEditorModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+    img.onerror = () => {
+        showToast('Could not load image for editing. Check CORS settings.', 'error');
+    };
+    img.src = photo.url;
+}
+
+function resetEditorControls() {
+    editorState.rotation = 0;
+    editorState.brightness = 100;
+    editorState.contrast = 100;
+    editorState.saturation = 100;
+    editorState.filter = 'none';
+
+    document.getElementById('editor-brightness').value = 100;
+    document.getElementById('editor-contrast').value = 100;
+    document.getElementById('editor-saturation').value = 100;
+    document.getElementById('brightness-value').textContent = '100%';
+    document.getElementById('contrast-value').textContent = '100%';
+    document.getElementById('saturation-value').textContent = '100%';
+    document.querySelectorAll('.editor-filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.filter === 'none');
+    });
+}
+
 function closePhotoEditor() {
     photoEditorModal.style.display = 'none';
     document.body.style.overflow = '';
     editorState.originalImage = null;
+    // Clean up crop mode if active
+    try { if (isCropping) cancelCrop(); } catch(e) {}
 }
 
 function renderEditor() {
@@ -1173,29 +1215,291 @@ document.getElementById('editor-reset').addEventListener('click', () => {
 // Cancel
 document.getElementById('editor-cancel').addEventListener('click', closePhotoEditor);
 
-// Apply — export the canvas to a Blob and replace the file in selectedFiles
-document.getElementById('editor-apply').addEventListener('click', () => {
-    editorCanvas.toBlob((blob) => {
-        if (blob) {
-            // Create a new File object with a descriptive name
-            const originalName = selectedFiles[editorState.fileIndex].name || 'photo';
-            const baseName = originalName.replace(/\.[^.]+$/, '');
-            const editedFile = new File([blob], `${baseName}_edited.jpg`, {
-                type: 'image/jpeg'
+// Apply — handle both upload preview and gallery modes
+document.getElementById('editor-apply').addEventListener('click', async () => {
+    if (editorState.mode === 'upload') {
+        // Upload preview mode — replace file in selectedFiles
+        editorCanvas.toBlob((blob) => {
+            if (blob) {
+                const originalName = selectedFiles[editorState.fileIndex].name || 'photo';
+                const baseName = originalName.replace(/\.[^.]+$/, '');
+                const editedFile = new File([blob], `${baseName}_edited.jpg`, {
+                    type: 'image/jpeg'
+                });
+                selectedFiles[editorState.fileIndex] = editedFile;
+                renderPreviews();
+                showToast('Photo edits applied! ✨', 'success');
+            }
+            closePhotoEditor();
+        }, 'image/jpeg', 0.92);
+    } else if (editorState.mode === 'gallery') {
+        // Gallery mode — re-upload to Firebase
+        const photo = editorState.galleryPhoto;
+        if (!photo) return;
+
+        const applyBtn = document.getElementById('editor-apply');
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Saving...';
+
+        try {
+            const blob = await new Promise(resolve => {
+                editorCanvas.toBlob(resolve, 'image/jpeg', 0.92);
             });
-            selectedFiles[editorState.fileIndex] = editedFile;
-            renderPreviews();
-            showToast('Photo edits applied! ✨', 'success');
+
+            if (blob) {
+                // Upload to new path
+                const fileId = generateId();
+                const storageRef = storage.ref(`photos/${fileId}.jpg`);
+                const uploadTask = await storageRef.put(blob, { contentType: 'image/jpeg' });
+                const newUrl = await uploadTask.ref.getDownloadURL();
+
+                // Update Firestore document with new URL
+                await db.collection('photos').doc(photo.id).update({ url: newUrl });
+
+                // Try to delete old file from Storage
+                if (photo.url && photo.url.includes('firebasestorage')) {
+                    try {
+                        const oldRef = storage.refFromURL(photo.url);
+                        await oldRef.delete();
+                    } catch (e) {
+                        console.log('Old file cleanup skipped:', e);
+                    }
+                }
+
+                showToast('Photo updated! ✨', 'success');
+                loadPhotos();
+            }
+        } catch (error) {
+            console.error('Gallery edit save error:', error);
+            showToast('Failed to save edits. Please try again.', 'error');
+        } finally {
+            applyBtn.disabled = false;
+            applyBtn.textContent = 'Apply';
+            closePhotoEditor();
         }
-        closePhotoEditor();
-    }, 'image/jpeg', 0.92);
+    }
 });
 
 // Close on Escape
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && photoEditorModal.style.display !== 'none') {
-        closePhotoEditor();
+        if (isCropping) {
+            cancelCrop();
+        } else {
+            closePhotoEditor();
+        }
     }
+});
+
+// ==================== CROP TOOL ====================
+
+let isCropping = false;
+let cropDragging = false;
+let cropAction = null;  // 'draw', 'move', 'nw', 'ne', 'sw', 'se'
+let cropStart = { x: 0, y: 0 };
+let cropBox = { x: 0, y: 0, w: 0, h: 0 }; // in overlay-relative pixels
+
+const cropOverlay = document.getElementById('crop-overlay');
+const cropSelection = document.getElementById('crop-selection');
+const cropActionsDiv = document.getElementById('crop-actions');
+const cropStartBtn = document.getElementById('editor-crop-start');
+
+// Get the canvas bounding rect relative to the overlay
+function getCanvasRect() {
+    const canvas = editorCanvas;
+    const wrap = canvas.parentElement;
+    const canvasRect = canvas.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    return {
+        left: canvasRect.left - wrapRect.left,
+        top: canvasRect.top - wrapRect.top,
+        width: canvasRect.width,
+        height: canvasRect.height
+    };
+}
+
+function startCropMode() {
+    isCropping = true;
+    cropOverlay.style.display = 'block';
+    cropActionsDiv.style.display = 'flex';
+    cropStartBtn.classList.add('active');
+
+    // Default crop selection to center 80%
+    const rect = getCanvasRect();
+    const margin = 0.1;
+    cropBox = {
+        x: rect.left + rect.width * margin,
+        y: rect.top + rect.height * margin,
+        w: rect.width * (1 - 2 * margin),
+        h: rect.height * (1 - 2 * margin)
+    };
+    updateCropSelection();
+}
+
+function cancelCrop() {
+    isCropping = false;
+    cropOverlay.style.display = 'none';
+    cropActionsDiv.style.display = 'none';
+    cropStartBtn.classList.remove('active');
+}
+
+function updateCropSelection() {
+    cropSelection.style.left = cropBox.x + 'px';
+    cropSelection.style.top = cropBox.y + 'px';
+    cropSelection.style.width = cropBox.w + 'px';
+    cropSelection.style.height = cropBox.h + 'px';
+}
+
+// Clamp crop box to canvas bounds
+function clampCropBox() {
+    const rect = getCanvasRect();
+    const minSize = 20;
+
+    cropBox.w = Math.max(minSize, cropBox.w);
+    cropBox.h = Math.max(minSize, cropBox.h);
+    cropBox.x = Math.max(rect.left, Math.min(cropBox.x, rect.left + rect.width - cropBox.w));
+    cropBox.y = Math.max(rect.top, Math.min(cropBox.y, rect.top + rect.height - cropBox.h));
+    cropBox.w = Math.min(cropBox.w, rect.left + rect.width - cropBox.x);
+    cropBox.h = Math.min(cropBox.h, rect.top + rect.height - cropBox.y);
+}
+
+// Mouse/Touch event handlers for crop
+function getCropPointer(e) {
+    const wrapRect = cropOverlay.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+        x: clientX - wrapRect.left,
+        y: clientY - wrapRect.top
+    };
+}
+
+cropOverlay.addEventListener('mousedown', cropPointerDown);
+cropOverlay.addEventListener('touchstart', cropPointerDown, { passive: false });
+
+function cropPointerDown(e) {
+    e.preventDefault();
+    const p = getCropPointer(e);
+    cropDragging = true;
+
+    // Check if clicking a handle
+    const target = e.target;
+    if (target.dataset && target.dataset.handle) {
+        cropAction = target.dataset.handle;
+        cropStart = { x: p.x, y: p.y };
+        return;
+    }
+
+    // Check if inside selection (move)
+    if (p.x >= cropBox.x && p.x <= cropBox.x + cropBox.w &&
+        p.y >= cropBox.y && p.y <= cropBox.y + cropBox.h) {
+        cropAction = 'move';
+        cropStart = { x: p.x - cropBox.x, y: p.y - cropBox.y };
+        return;
+    }
+
+    // Draw new selection
+    cropAction = 'draw';
+    cropStart = { x: p.x, y: p.y };
+    cropBox = { x: p.x, y: p.y, w: 0, h: 0 };
+    updateCropSelection();
+}
+
+document.addEventListener('mousemove', cropPointerMove);
+document.addEventListener('touchmove', cropPointerMove, { passive: false });
+
+function cropPointerMove(e) {
+    if (!cropDragging || !isCropping) return;
+    e.preventDefault();
+    const p = getCropPointer(e);
+
+    if (cropAction === 'draw') {
+        cropBox.x = Math.min(p.x, cropStart.x);
+        cropBox.y = Math.min(p.y, cropStart.y);
+        cropBox.w = Math.abs(p.x - cropStart.x);
+        cropBox.h = Math.abs(p.y - cropStart.y);
+    } else if (cropAction === 'move') {
+        cropBox.x = p.x - cropStart.x;
+        cropBox.y = p.y - cropStart.y;
+    } else if (cropAction === 'se') {
+        cropBox.w = p.x - cropBox.x;
+        cropBox.h = p.y - cropBox.y;
+    } else if (cropAction === 'sw') {
+        cropBox.w += cropBox.x - p.x;
+        cropBox.x = p.x;
+        cropBox.h = p.y - cropBox.y;
+    } else if (cropAction === 'ne') {
+        cropBox.w = p.x - cropBox.x;
+        cropBox.h += cropBox.y - p.y;
+        cropBox.y = p.y;
+    } else if (cropAction === 'nw') {
+        cropBox.w += cropBox.x - p.x;
+        cropBox.h += cropBox.y - p.y;
+        cropBox.x = p.x;
+        cropBox.y = p.y;
+    }
+
+    clampCropBox();
+    updateCropSelection();
+}
+
+document.addEventListener('mouseup', cropPointerUp);
+document.addEventListener('touchend', cropPointerUp);
+
+function cropPointerUp() {
+    cropDragging = false;
+    cropAction = null;
+}
+
+// Crop Start button
+cropStartBtn.addEventListener('click', () => {
+    if (isCropping) {
+        cancelCrop();
+    } else {
+        startCropMode();
+    }
+});
+
+// Crop Cancel
+document.getElementById('crop-cancel-btn').addEventListener('click', cancelCrop);
+
+// Crop Confirm - apply crop to the editor's source image
+document.getElementById('crop-confirm').addEventListener('click', () => {
+    const rect = getCanvasRect();
+    if (cropBox.w < 10 || cropBox.h < 10) {
+        showToast('Selection too small', 'error');
+        return;
+    }
+
+    // Convert overlay-relative crop coords to canvas pixel coords
+    const scaleX = editorCanvas.width / rect.width;
+    const scaleY = editorCanvas.height / rect.height;
+    const sx = (cropBox.x - rect.left) * scaleX;
+    const sy = (cropBox.y - rect.top) * scaleY;
+    const sw = cropBox.w * scaleX;
+    const sh = cropBox.h * scaleY;
+
+    // Create a temp canvas with just the cropped region from the current render
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = Math.round(sw);
+    tempCanvas.height = Math.round(sh);
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(editorCanvas, sx, sy, sw, sh, 0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Replace the original image with the cropped result
+    const croppedImg = new Image();
+    croppedImg.onload = () => {
+        editorState.originalImage = croppedImg;
+        editorState.rotation = 0;
+        editorState.brightness = 100;
+        editorState.contrast = 100;
+        editorState.saturation = 100;
+        editorState.filter = 'none';
+        resetEditorControls();
+        cancelCrop();
+        showToast('Cropped!', 'success');
+    };
+    croppedImg.src = tempCanvas.toDataURL('image/jpeg', 0.95);
 });
 
 // ==================== ADMIN MODE ====================

@@ -35,7 +35,7 @@
 
     <!-- ===== NAVIGATION ===== -->
     <nav id="main-nav" class="nav">
-        <div class="nav-brand">R &amp; B</div>
+        <a href="/" class="nav-brand">R &amp; B</a>
         <button id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
             <span></span>
             <span></span>
@@ -346,6 +346,14 @@
         <div class="editor-body">
             <div class="editor-canvas-wrap">
                 <canvas id="editor-canvas"></canvas>
+                <div id="crop-overlay" class="crop-overlay" style="display:none;">
+                    <div id="crop-selection" class="crop-selection">
+                        <div class="crop-handle crop-handle-nw" data-handle="nw"></div>
+                        <div class="crop-handle crop-handle-ne" data-handle="ne"></div>
+                        <div class="crop-handle crop-handle-sw" data-handle="sw"></div>
+                        <div class="crop-handle crop-handle-se" data-handle="se"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="editor-controls">
@@ -363,6 +371,22 @@
                                 <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
                             </svg>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Crop -->
+                <div class="editor-control-group">
+                    <span class="editor-control-label">Crop</span>
+                    <div class="editor-crop-btns">
+                        <button type="button" class="editor-icon-btn editor-crop-btn" id="editor-crop-start" title="Crop">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="crop-actions" class="crop-actions" style="display:none;">
+                        <button type="button" class="btn btn-primary crop-action-btn" id="crop-confirm">Apply Crop</button>
+                        <button type="button" class="btn btn-outline crop-action-btn" id="crop-cancel-btn">Cancel</button>
                     </div>
                 </div>
 

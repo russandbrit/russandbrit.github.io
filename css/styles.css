@@ -1592,8 +1592,9 @@ textarea {
     box-shadow: 0 6px 30px rgba(229, 62, 62, 0.35) !important;
 }
 
-/* Admin delete buttons on gallery items (hidden by default) */
+/* Admin buttons on gallery items (hidden by default) */
 .gallery-item-delete,
+.gallery-item-edit,
 .guestbook-entry-delete {
     display: none;
 }
@@ -1620,6 +1621,31 @@ body.admin-mode .gallery-item-delete {
 
 body.admin-mode .gallery-item-delete:hover {
     background: #e53e3e;
+    transform: scale(1.1);
+}
+
+body.admin-mode .gallery-item-edit {
+    display: flex;
+    position: absolute;
+    top: 46px;
+    right: 8px;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(201, 168, 76, 0.9);
+    color: var(--color-bg);
+    font-size: 15px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: all var(--duration-fast) ease;
+}
+
+body.admin-mode .gallery-item-edit:hover {
+    background: var(--color-gold);
     transform: scale(1.1);
 }
 
@@ -1712,6 +1738,7 @@ body.admin-mode .nav {
     padding: var(--space-xl);
     background: #080810;
     overflow: hidden;
+    position: relative;
 }
 
 .editor-canvas-wrap canvas {
@@ -1719,6 +1746,67 @@ body.admin-mode .nav {
     max-height: 100%;
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-lg);
+}
+
+/* Crop Overlay */
+.crop-overlay {
+    position: absolute;
+    inset: 0;
+    cursor: crosshair;
+    z-index: 5;
+}
+
+.crop-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.crop-selection {
+    position: absolute;
+    border: 2px dashed var(--color-gold);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+    cursor: move;
+    min-width: 20px;
+    min-height: 20px;
+    z-index: 6;
+}
+
+.crop-handle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: var(--color-gold);
+    border: 2px solid var(--color-bg);
+    border-radius: 2px;
+    z-index: 7;
+}
+
+.crop-handle-nw { top: -7px; left: -7px; cursor: nw-resize; }
+.crop-handle-ne { top: -7px; right: -7px; cursor: ne-resize; }
+.crop-handle-sw { bottom: -7px; left: -7px; cursor: sw-resize; }
+.crop-handle-se { bottom: -7px; right: -7px; cursor: se-resize; }
+
+/* Crop action buttons */
+.crop-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+}
+
+.crop-action-btn {
+    flex: 1;
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em !important;
+}
+
+.editor-crop-btn.active {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+    color: var(--color-bg);
 }
 
 /* Editor Controls Panel */
