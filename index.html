@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russ & Brit — Our Wedding</title>
+    <meta name="description" content="Celebrate the wedding of Russ & Brit. Share your photos and sign our virtual guestbook with messages, audio, or video.">
+    <meta name="theme-color" content="#1a1a2e">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Firebase SDKs (compat for CDN usage) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+</head>
+<body>
+    <!-- ===== PRELOADER ===== -->
+    <div id="preloader" class="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-rings">
+                <div class="ring ring-1"></div>
+                <div class="ring ring-2"></div>
+            </div>
+            <p class="preloader-text">R &amp; B</p>
+        </div>
+    </div>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav id="main-nav" class="nav">
+        <div class="nav-brand">R &amp; B</div>
+        <button id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul id="nav-menu" class="nav-menu">
+            <li><a href="#hero" class="nav-link active" data-section="hero">Home</a></li>
+            <li><a href="#gallery" class="nav-link" data-section="gallery">Photos</a></li>
+            <li><a href="#upload" class="nav-link" data-section="upload">Upload</a></li>
+            <li><a href="#guestbook" class="nav-link" data-section="guestbook">Guestbook</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section id="hero" class="hero">
+        <div class="hero-bg">
+            <img src="photos/main.png" alt="Russ and Brit wedding photo" class="hero-img">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">We said &ldquo;I do&rdquo;</div>
+            <h1 class="hero-title">
+                <span class="hero-name">Russ</span>
+                <span class="hero-ampersand">&amp;</span>
+                <span class="hero-name">Brit</span>
+            </h1>
+            <p class="hero-subtitle">Thank you for being part of our story</p>
+            <div class="hero-actions">
+                <a href="#gallery" class="btn btn-primary" id="hero-view-photos">View Photos</a>
+                <a href="#guestbook" class="btn btn-outline" id="hero-sign-guestbook">Sign Guestbook</a>
+            </div>
+            <div class="scroll-indicator" id="scroll-indicator">
+                <span>Scroll</span>
+                <div class="scroll-line"></div>
+            </div>
+        </div>
+        <!-- Floating petals -->
+        <div class="petals-container" id="petals-container"></div>
+    </section>
+
+    <!-- ===== GALLERY SECTION ===== -->
+    <section id="gallery" class="section gallery-section">
+        <div class="section-header">
+            <span class="section-tag">Memories</span>
+            <h2 class="section-title">Our Photo Gallery</h2>
+            <p class="section-desc">Relive the magic through the eyes of everyone who celebrated with us</p>
+        </div>
+
+        <!-- Gallery Filter -->
+        <div class="gallery-controls" id="gallery-controls">
+            <button class="filter-btn active" data-filter="all" id="filter-all">All Photos</button>
+            <button class="filter-btn" data-filter="official" id="filter-official">Official</button>
+            <button class="filter-btn" data-filter="guest" id="filter-guest">Guest Uploads</button>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="gallery-grid" id="gallery-grid">
+            <!-- Photos loaded dynamically -->
+        </div>
+
+        <div class="gallery-loading" id="gallery-loading">
+            <div class="spinner"></div>
+            <p>Loading memories...</p>
+        </div>
+
+        <div class="gallery-empty" id="gallery-empty" style="display:none;">
+            <div class="empty-icon">📷</div>
+            <p>No photos yet — be the first to share!</p>
+        </div>
+    </section>
+
+    <!-- ===== UPLOAD SECTION ===== -->
+    <section id="upload" class="section upload-section">
+        <div class="section-header">
+            <span class="section-tag">Share</span>
+            <h2 class="section-title">Share Your Photos</h2>
+            <p class="section-desc">Upload your favorite moments from the celebration</p>
+        </div>
+
+        <div class="upload-container">
+            <form id="upload-form" class="upload-form">
+                <div class="upload-dropzone" id="upload-dropzone">
+                    <div class="dropzone-content">
+                        <div class="dropzone-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <p class="dropzone-text">Drag &amp; drop your photos here</p>
+                        <p class="dropzone-subtext">or click to browse</p>
+                        <p class="dropzone-hint">Supports JPG, PNG, WEBP • Max 10MB each</p>
+                    </div>
+                    <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" hidden>
+                </div>
+
+                <!-- Preview Thumbnails -->
+                <div class="upload-previews" id="upload-previews"></div>
+
+                <div class="upload-meta">
+                    <div class="form-group">
+                        <label for="uploader-name">Your Name</label>
+                        <input type="text" id="uploader-name" placeholder="e.g. Aunt Susan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo-caption">Caption <span class="optional">(optional)</span></label>
+                        <input type="text" id="photo-caption" placeholder="A few words about this moment...">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-upload" id="upload-submit" disabled>
+                    <span class="btn-text">Upload Photos</span>
+                    <span class="btn-loader" style="display:none;">
+                        <div class="spinner-small"></div>
+                        Uploading...
+                    </span>
+                </button>
+
+                <!-- Upload Progress -->
+                <div class="upload-progress" id="upload-progress" style="display:none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <p class="progress-text" id="progress-text">Uploading 0 of 0...</p>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- ===== GUESTBOOK SECTION ===== -->
+    <section id="guestbook" class="section guestbook-section">
+        <div class="section-header">
+            <span class="section-tag">Wishes</span>
+            <h2 class="section-title">Virtual Guestbook</h2>
+            <p class="section-desc">Leave your love, well-wishes, and favorite memories</p>
+        </div>
+
+        <!-- Guestbook Form -->
+        <div class="guestbook-form-container">
+            <form id="guestbook-form" class="guestbook-form">
+                <div class="form-group">
+                    <label for="guest-name">Your Name</label>
+                    <input type="text" id="guest-name" placeholder="Your name" required>
+                </div>
+
+                <!-- Message Type Selector -->
+                <div class="message-type-selector" id="message-type-selector">
+                    <button type="button" class="type-btn active" data-type="text" id="type-text">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>Text</span>
+                    </button>
+                    <button type="button" class="type-btn" data-type="audio" id="type-audio">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                        <span>Audio</span>
+                    </button>
+                    <button type="button" class="type-btn" data-type="video" id="type-video">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
+                        <span>Video</span>
+                    </button>
+                </div>
+
+                <!-- Text Input -->
+                <div class="message-input" id="input-text">
+                    <div class="form-group">
+                        <label for="guest-message">Your Message</label>
+                        <textarea id="guest-message" rows="4" placeholder="Share your love and well-wishes..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Audio Input -->
+                <div class="message-input" id="input-audio" style="display:none;">
+                    <div class="recorder-panel">
+                        <div class="recorder-visualizer" id="audio-visualizer">
+                            <canvas id="audio-canvas" width="300" height="80"></canvas>
+                        </div>
+                        <div class="recorder-controls">
+                            <button type="button" class="recorder-btn" id="audio-record-btn" title="Record audio">
+                                <div class="recorder-dot"></div>
+                                <span>Record</span>
+                            </button>
+                            <button type="button" class="recorder-btn recorder-stop" id="audio-stop-btn" title="Stop recording" style="display:none;">
+                                <div class="recorder-square"></div>
+                                <span>Stop</span>
+                            </button>
+                        </div>
+                        <div class="recorder-playback" id="audio-playback" style="display:none;">
+                            <audio id="audio-preview" controls></audio>
+                            <button type="button" class="btn-discard" id="audio-discard">Discard &amp; Re-record</button>
+                        </div>
+                        <p class="recorder-hint">Max 60 seconds</p>
+                    </div>
+                </div>
+
+                <!-- Video Input -->
+                <div class="message-input" id="input-video" style="display:none;">
+                    <div class="recorder-panel">
+                        <div class="video-preview-container">
+                            <video id="video-live" autoplay muted playsinline class="video-live"></video>
+                            <video id="video-preview" controls class="video-preview" style="display:none;"></video>
+                        </div>
+                        <div class="recorder-controls">
+                            <button type="button" class="recorder-btn" id="video-record-btn" title="Record video">
+                                <div class="recorder-dot"></div>
+                                <span>Record</span>
+                            </button>
+                            <button type="button" class="recorder-btn recorder-stop" id="video-stop-btn" title="Stop recording" style="display:none;">
+                                <div class="recorder-square"></div>
+                                <span>Stop</span>
+                            </button>
+                        </div>
+                        <div class="recorder-playback" id="video-playback-controls" style="display:none;">
+                            <button type="button" class="btn-discard" id="video-discard">Discard &amp; Re-record</button>
+                        </div>
+                        <p class="recorder-hint">Max 30 seconds</p>
+                        <p class="recorder-hint" id="video-upload-option">
+                            Or <button type="button" class="link-btn" id="video-file-btn">upload a video file</button>
+                        </p>
+                        <input type="file" id="video-file-input" accept="video/*" hidden>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-guestbook" id="guestbook-submit">
+                    <span class="btn-text">Sign the Guestbook</span>
+                    <span class="btn-loader" style="display:none;">
+                        <div class="spinner-small"></div>
+                        Sending...
+                    </span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Guestbook Entries -->
+        <div class="guestbook-entries" id="guestbook-entries">
+            <!-- Entries loaded dynamically -->
+        </div>
+
+        <div class="guestbook-loading" id="guestbook-loading">
+            <div class="spinner"></div>
+            <p>Loading messages...</p>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-names">Russ &amp; Brit</span>
+                <span class="footer-heart">&hearts;</span>
+            </div>
+            <p class="footer-note">Thank you for making our day unforgettable</p>
+            <p class="footer-copy">&copy; 2025 — Built with love</p>
+        </div>
+    </footer>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div id="lightbox" class="lightbox" style="display:none;">
+        <button class="lightbox-close" id="lightbox-close" aria-label="Close lightbox">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous photo">&#8249;</button>
+        <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next photo">&#8250;</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Full size photo">
+            <div class="lightbox-info" id="lightbox-info">
+                <p class="lightbox-caption" id="lightbox-caption"></p>
+                <p class="lightbox-credit" id="lightbox-credit"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST NOTIFICATIONS ===== -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Application JS -->
+    <script src="js/app.js"></script>
+</body>
+</html>
