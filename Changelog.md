@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-07-04
+
+### Added
+- Permanent `originalUrl` stored in Firestore — the first uploaded version is always preserved
+- Reset All now fetches the true original from Firestore, even after multiple edit sessions
+- Reset All auto-saves the restored original back to Firebase
+
+### Changed
+- Gallery edits no longer delete the original file from Storage — only intermediate edits are cleaned up
+- Edits update `url` but never modify `originalUrl`, ensuring the original is always recoverable
+
+### Fixed
+- Crop now renders immediately after applying
+- Staging grid reloads after photo delete
+- Reset now fully works after crop (restores unmodified image)
+
 ## [2.0.2] - 2026-07-04
 
 ### Fixed

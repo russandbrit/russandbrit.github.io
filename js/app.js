@@ -514,6 +514,7 @@ uploadForm.addEventListener('submit', async (e) => {
             // Save metadata to Firestore (pending approval)
             await db.collection('photos').add({
                 url: url,
+                originalUrl: url,
                 name: name,
                 caption: caption,
                 status: 'pending',
@@ -1205,7 +1206,40 @@ document.querySelectorAll('.editor-filter-btn').forEach(btn => {
 });
 
 // Reset — restore to true original image (undo crop + all edits)
-document.getElementById('editor-reset').addEventListener('click', () => {
+document.getElementById('editor-reset').addEventListener('click', async () => {
+    // In gallery mode, try to fetch the permanent original from Firestore
+    if (editorState.mode === 'gallery' && editorState.galleryPhoto) {
+        const photo = editorState.galleryPhoto;
+        try {
+            const docSnap = await db.collection('photos').doc(photo.id).get();
+            const origUrl = docSnap.data().originalUrl;
+            if (origUrl) {
+                const response = await fetch(origUrl);
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const img = new Image();
+                img.onload = () => {
+                    editorState.originalImage = img;
+                    editorState.trueOriginal = img;
+                    editorState.rotation = 0;
+                    editorState.brightness = 100;
+                    editorState.contrast = 100;
+                    editorState.saturation = 100;
+                    editorState.filter = 'none';
+                    resetEditorControls();
+                    renderEditor();
+                    // Auto-apply to save original back to Firebase
+                    document.getElementById('editor-apply').click();
+                };
+                img.src = blobUrl;
+                return;
+            }
+        } catch (e) {
+            console.log('Could not fetch original, using in-memory fallback:', e);
+        }
+    }
+
+    // Fallback: use in-memory trueOriginal
     if (editorState.trueOriginal) {
         editorState.originalImage = editorState.trueOriginal;
     }
@@ -1274,11 +1308,18 @@ document.getElementById('editor-apply').addEventListener('click', async () => {
                 const uploadTask = await storageRef.put(blob, { contentType: 'image/jpeg' });
                 const newUrl = await uploadTask.ref.getDownloadURL();
 
-                // Update Firestore document with new URL
-                await db.collection('photos').doc(photo.id).update({ url: newUrl });
+                // Update Firestore document with new URL (preserve originalUrl)
+                const updateData = { url: newUrl };
+                // Set originalUrl only if it doesn't already exist
+                const docSnap = await db.collection('photos').doc(photo.id).get();
+                if (!docSnap.data().originalUrl) {
+                    updateData.originalUrl = photo.url;
+                }
+                await db.collection('photos').doc(photo.id).update(updateData);
 
-                // Try to delete old file from Storage
-                if (photo.url && photo.url.includes('firebasestorage')) {
+                // Delete old edited file (but NEVER the original)
+                const origUrl = docSnap.data().originalUrl || null;
+                if (photo.url && photo.url.includes('firebasestorage') && photo.url !== origUrl) {
                     try {
                         const oldRef = storage.refFromURL(photo.url);
                         await oldRef.delete();
