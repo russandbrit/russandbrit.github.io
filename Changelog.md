@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-07-05
+
+### Added
+- **Promote to Official** — Admin can promote any guest photo to "official" from the detail modal
+- **Demote to Guest** — Toggle official photos back to guest
+- Admin **Delete Comment** button (✕) on each comment when in admin mode
+- Admin **Reset Likes** button to zero out likes on any photo
+- Likes and comments now work on **all photos** including the official wedding photo
+
+### Changed
+- Photos now store `type` field in Firestore (`'guest'` or `'official'`) for gallery filtering
+- All Firestore writes use `set({merge: true})` to auto-create documents (fixes official photo errors)
+- Upload now saves `type: 'guest'` to Firestore
+
+### Fixed
+- "No document to update: photos/main" error when liking/commenting on official photo
+
 ## [2.2.0] - 2026-07-05
 
 ### Added
