@@ -1907,6 +1907,7 @@ adminToggleBtn.addEventListener('click', () => {
         document.body.classList.remove('admin-mode');
         adminToggleBtn.classList.remove('active');
         document.getElementById('staging').style.display = 'none';
+        sessionStorage.removeItem('adminActive');
         showToast('Admin mode deactivated', 'success');
     } else {
         // Show passcode modal
@@ -1935,9 +1936,19 @@ document.getElementById('admin-modal-submit').addEventListener('click', () => {
     adminToggleBtn.classList.add('active');
     adminModal.style.display = 'none';
     document.getElementById('staging').style.display = 'block';
+    sessionStorage.setItem('adminActive', '1');
     loadStagingPhotos();
     showToast('Admin mode activated — review pending photos above the gallery', 'success');
 });
+
+// Restore admin session on page load
+if (sessionStorage.getItem('adminActive') === '1') {
+    isAdminMode = true;
+    document.body.classList.add('admin-mode');
+    adminToggleBtn.classList.add('active');
+    document.getElementById('staging').style.display = 'block';
+    loadStagingPhotos();
+}
 
 // Admin modal cancel
 document.getElementById('admin-modal-cancel').addEventListener('click', () => {
