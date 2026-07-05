@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-07-04
+
+### Added
+- Photo staging/moderation system — all uploads now go to "pending" status
+- Admin-only "Pending Approval" section appears above gallery when admin mode is active
+- Per-photo actions in staging: Approve (✓), Edit (✎), Reject (✕)
+- "Approve All" batch action for quick bulk approval
+- Pending count badge in staging header
+
+### Changed
+- Gallery now only displays photos with `status: 'approved'`
+- Upload success message now says "Pending admin approval" instead of immediate confirmation
+- Firestore photo documents now include a `status` field (`'pending'` or `'approved'`)
+
 ## [1.5.2] - 2026-07-04
 
 ### Added

@@ -610,6 +610,83 @@ textarea {
     max-width: 1400px;
 }
 
+/* ---------- Staging Section ---------- */
+.staging-section {
+    max-width: 1400px;
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    border-radius: var(--radius-lg);
+    background: rgba(201, 168, 76, 0.03);
+    padding: var(--space-2xl) var(--space-xl);
+    margin: 0 auto var(--space-2xl);
+}
+
+.staging-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.staging-count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.staging-grid .gallery-item {
+    position: relative;
+}
+
+/* Staging item action buttons */
+.staging-item-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 0;
+    z-index: 3;
+}
+
+.staging-btn {
+    flex: 1;
+    border: none;
+    padding: 8px 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+.staging-btn-approve {
+    background: rgba(72, 187, 120, 0.9);
+    color: white;
+}
+
+.staging-btn-approve:hover {
+    background: rgba(72, 187, 120, 1);
+}
+
+.staging-btn-edit {
+    background: rgba(201, 168, 76, 0.9);
+    color: var(--color-bg);
+}
+
+.staging-btn-edit:hover {
+    background: rgba(201, 168, 76, 1);
+}
+
+.staging-btn-reject {
+    background: rgba(229, 62, 62, 0.9);
+    color: white;
+}
+
+.staging-btn-reject:hover {
+    background: rgba(229, 62, 62, 1);
+}
+
 .gallery-controls {
     display: flex;
     justify-content: center;

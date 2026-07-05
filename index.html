@@ -92,6 +92,29 @@
         <cite class="quote-cite">Ruth 1:16&ndash;17</cite>
     </section>
 
+    <!-- ===== STAGING SECTION (Admin Only) ===== -->
+    <section id="staging" class="section staging-section" style="display:none;">
+        <div class="section-header">
+            <span class="section-tag">Admin</span>
+            <h2 class="section-title">Pending Approval</h2>
+            <p class="section-desc">Review, edit, and approve uploaded photos before they appear in the gallery</p>
+        </div>
+
+        <div class="staging-actions">
+            <button class="btn btn-primary" id="staging-approve-all">✓ Approve All</button>
+            <span class="staging-count" id="staging-count">0 pending</span>
+        </div>
+
+        <div class="gallery-grid staging-grid" id="staging-grid">
+            <!-- Pending photos loaded dynamically -->
+        </div>
+
+        <div class="gallery-empty" id="staging-empty" style="display:none;">
+            <div class="empty-icon">✅</div>
+            <p>No pending photos — all caught up!</p>
+        </div>
+    </section>
+
     <!-- ===== GALLERY SECTION ===== -->
     <section id="gallery" class="section gallery-section">
         <div class="section-header">

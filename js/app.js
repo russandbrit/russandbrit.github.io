@@ -228,8 +228,9 @@ async function loadPhotos() {
             timestamp: new Date('2025-01-01')
         }];
 
-        // Fetch guest-uploaded photos from Firestore
+        // Fetch guest-uploaded photos from Firestore (only approved)
         const snapshot = await db.collection('photos')
+            .where('status', '==', 'approved')
             .orderBy('timestamp', 'desc')
             .get();
 
@@ -510,11 +511,12 @@ uploadForm.addEventListener('submit', async (e) => {
             });
             const url = await uploadTask.ref.getDownloadURL();
 
-            // Save metadata to Firestore
+            // Save metadata to Firestore (pending approval)
             await db.collection('photos').add({
                 url: url,
                 name: name,
                 caption: caption,
+                status: 'pending',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
@@ -524,7 +526,7 @@ uploadForm.addEventListener('submit', async (e) => {
             progressText.textContent = `Uploading ${uploaded} of ${total}...`;
         }
 
-        showToast(`${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded successfully! 🎉`, 'success');
+        showToast(`${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded! Pending admin approval.`, 'success');
 
         // Reset form
         selectedFiles = [];
@@ -1540,6 +1542,7 @@ adminToggleBtn.addEventListener('click', () => {
         isAdminMode = false;
         document.body.classList.remove('admin-mode');
         adminToggleBtn.classList.remove('active');
+        document.getElementById('staging').style.display = 'none';
         showToast('Admin mode deactivated', 'success');
     } else {
         // Show passcode modal
@@ -1567,7 +1570,9 @@ document.getElementById('admin-modal-submit').addEventListener('click', () => {
     document.body.classList.add('admin-mode');
     adminToggleBtn.classList.add('active');
     adminModal.style.display = 'none';
-    showToast('Admin mode activated — you can now delete items', 'success');
+    document.getElementById('staging').style.display = 'block';
+    loadStagingPhotos();
+    showToast('Admin mode activated — review pending photos above the gallery', 'success');
 });
 
 // Admin modal cancel
@@ -1579,6 +1584,108 @@ document.getElementById('admin-modal-cancel').addEventListener('click', () => {
 adminPasscodeInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         document.getElementById('admin-modal-submit').click();
+    }
+});
+
+// ==================== STAGING / MODERATION ====================
+
+const stagingGrid = document.getElementById('staging-grid');
+const stagingEmpty = document.getElementById('staging-empty');
+const stagingCount = document.getElementById('staging-count');
+let stagingPhotos = [];
+
+async function loadStagingPhotos() {
+    try {
+        const snapshot = await db.collection('photos')
+            .where('status', '==', 'pending')
+            .orderBy('timestamp', 'desc')
+            .get();
+
+        stagingPhotos = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            timestamp: doc.data().timestamp?.toDate() || new Date()
+        }));
+
+        renderStaging();
+    } catch (error) {
+        console.error('Error loading staging photos:', error);
+    }
+}
+
+function renderStaging() {
+    stagingGrid.innerHTML = '';
+    stagingCount.textContent = `${stagingPhotos.length} pending`;
+    stagingEmpty.style.display = stagingPhotos.length === 0 ? 'flex' : 'none';
+
+    stagingPhotos.forEach(photo => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+        item.innerHTML = `
+            <img src="${photo.url}" alt="${photo.caption || 'Pending photo'}" loading="lazy">
+            <div class="gallery-item-overlay">
+                <p class="gallery-item-name">${escapeHtml(photo.name || 'Unknown')}</p>
+                ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
+            </div>
+            <div class="staging-item-actions">
+                <button class="staging-btn staging-btn-approve" title="Approve">✓ Approve</button>
+                <button class="staging-btn staging-btn-edit" title="Edit">✎ Edit</button>
+                <button class="staging-btn staging-btn-reject" title="Reject">✕ Reject</button>
+            </div>
+        `;
+
+        // Approve
+        item.querySelector('.staging-btn-approve').addEventListener('click', () => approvePhoto(photo.id));
+        // Edit
+        item.querySelector('.staging-btn-edit').addEventListener('click', () => openGalleryPhotoEditor(photo));
+        // Reject
+        item.querySelector('.staging-btn-reject').addEventListener('click', () => {
+            confirmDelete('photo', photo.id, photo.url, photo.name);
+        });
+
+        stagingGrid.appendChild(item);
+    });
+}
+
+async function approvePhoto(docId) {
+    try {
+        await db.collection('photos').doc(docId).update({ status: 'approved' });
+        showToast('Photo approved! ✨', 'success');
+        loadStagingPhotos();
+        loadPhotos();
+    } catch (error) {
+        console.error('Approve error:', error);
+        showToast('Failed to approve photo.', 'error');
+    }
+}
+
+// Approve all pending
+document.getElementById('staging-approve-all').addEventListener('click', async () => {
+    if (stagingPhotos.length === 0) {
+        showToast('No pending photos to approve', 'warning');
+        return;
+    }
+
+    const btn = document.getElementById('staging-approve-all');
+    btn.disabled = true;
+    btn.textContent = 'Approving...';
+
+    try {
+        const batch = db.batch();
+        stagingPhotos.forEach(photo => {
+            const ref = db.collection('photos').doc(photo.id);
+            batch.update(ref, { status: 'approved' });
+        });
+        await batch.commit();
+        showToast(`${stagingPhotos.length} photos approved!`, 'success');
+        loadStagingPhotos();
+        loadPhotos();
+    } catch (error) {
+        console.error('Approve all error:', error);
+        showToast('Failed to approve all. Try individually.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '✓ Approve All';
     }
 });
 
