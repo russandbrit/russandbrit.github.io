@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help — Russ & Brit Wedding Site</title>
+    <meta name="description" content="How to use the Russ & Brit wedding website — upload photos, sign the guestbook, and more.">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== Base (matches main site) ===== */
+        :root {
+            --color-bg:           #0c0c14;
+            --color-bg-secondary: #12121e;
+            --color-bg-card:      rgba(255, 255, 255, 0.04);
+            --color-bg-glass:     rgba(255, 255, 255, 0.06);
+            --color-surface:      #1a1a2e;
+            --color-surface-2:    #232340;
+            --color-gold:         #c9a84c;
+            --color-gold-light:   #e8d48b;
+            --color-gold-dark:    #8a6d2b;
+            --color-gold-glow:    rgba(201, 168, 76, 0.25);
+            --color-text:         #f0ece2;
+            --color-text-muted:   #9a96a6;
+            --color-text-faint:   #5d5a6b;
+            --color-accent:       #7c6bc4;
+            --color-border:       rgba(255, 255, 255, 0.08);
+            --font-display: 'Cormorant Garamond', 'Georgia', serif;
+            --font-body:    'Outfit', 'Segoe UI', sans-serif;
+            --radius-sm:  8px;
+            --radius-md:  12px;
+            --radius-lg:  20px;
+            --shadow-md:  0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            font-weight: 300;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        a { color: var(--color-gold); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--color-gold-light); }
+
+        /* ===== Nav ===== */
+        .help-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: rgba(12, 12, 20, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .help-nav-brand {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--color-gold);
+        }
+
+        .help-nav-back {
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border: 1px solid var(--color-border);
+            border-radius: 9999px;
+            color: var(--color-text-muted);
+            transition: all 0.2s;
+        }
+
+        .help-nav-back:hover {
+            border-color: var(--color-gold);
+            color: var(--color-gold);
+        }
+
+        /* ===== Layout ===== */
+        .help-container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 7rem 2rem 4rem;
+        }
+
+        .help-hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .help-hero-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-gold);
+            background: var(--color-gold-glow);
+            padding: 0.4rem 1.2rem;
+            border-radius: 9999px;
+            margin-bottom: 1.5rem;
+        }
+
+        .help-hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .help-hero p {
+            color: var(--color-text-muted);
+            font-size: 1.05rem;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* ===== Table of Contents ===== */
+        .toc {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .toc h2 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: var(--color-gold);
+        }
+
+        .toc-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 2rem;
+        }
+
+        .toc a {
+            display: block;
+            padding: 0.35rem 0;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .toc a:hover {
+            color: var(--color-gold);
+            padding-left: 0.5rem;
+        }
+
+        .toc a::before {
+            content: '→ ';
+            color: var(--color-text-faint);
+            transition: color 0.2s;
+        }
+
+        .toc a:hover::before {
+            color: var(--color-gold);
+        }
+
+        /* ===== Sections ===== */
+        .help-section {
+            margin-bottom: 3.5rem;
+            scroll-margin-top: 5rem;
+        }
+
+        .help-section h2 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .help-section h2 .section-icon {
+            font-size: 1.4rem;
+        }
+
+        .help-section h3 {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-top: 1.8rem;
+            margin-bottom: 0.6rem;
+            color: var(--color-gold-light);
+        }
+
+        .help-section p {
+            color: var(--color-text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .help-section ul, .help-section ol {
+            color: var(--color-text-muted);
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .help-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .help-section li strong {
+            color: var(--color-text);
+        }
+
+        /* ===== Steps ===== */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: var(--color-gold-glow);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--color-gold);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== Keyboard Shortcuts Table ===== */
+        .key-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 1.5rem;
+        }
+
+        .key-table th,
+        .key-table td {
+            text-align: left;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 0.9rem;
+        }
+
+        .key-table th {
+            color: var(--color-gold);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .key-table td {
+            color: var(--color-text-muted);
+        }
+
+        .key-table td:first-child {
+            color: var(--color-text);
+        }
+
+        kbd {
+            display: inline-block;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 0.15rem 0.5rem;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            color: var(--color-gold-light);
+        }
+
+        /* ===== Info Callouts ===== */
+        .callout {
+            background: var(--color-bg-card);
+            border-left: 3px solid var(--color-gold);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout-title {
+            font-weight: 500;
+            color: var(--color-gold);
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .callout.callout-warning {
+            border-left-color: #fbbf24;
+        }
+
+        .callout.callout-warning .callout-title {
+            color: #fbbf24;
+        }
+
+        /* ===== Admin Badge ===== */
+        .admin-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-bg);
+            background: var(--color-gold);
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+
+        /* ===== Footer ===== */
+        .help-footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-top: 1px solid var(--color-border);
+            color: var(--color-text-faint);
+            font-size: 0.8rem;
+        }
+
+        .help-footer a {
+            color: var(--color-text-muted);
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 640px) {
+            .help-container { padding: 6rem 1.2rem 3rem; }
+            .help-nav { padding: 0.8rem 1.2rem; }
+            .toc-columns { grid-template-columns: 1fr; }
+            .help-section h2 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="help-nav">
+        <a href="/" class="help-nav-brand">R &amp; B</a>
+        <a href="/" class="help-nav-back">← Back to Site</a>
+    </nav>
+
+    <div class="help-container">
+
+        <!-- Hero -->
+        <div class="help-hero">
+            <span class="help-hero-tag">Guide</span>
+            <h1>How to Use Our Wedding Site</h1>
+            <p>Everything you need to know about sharing photos, signing the guestbook, and celebrating with us online.</p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <div class="toc-columns">
+                <div>
+                    <a href="#browsing">Browsing the Gallery</a>
+                    <a href="#liking">Liking &amp; Commenting</a>
+                    <a href="#uploading">Uploading Photos</a>
+                    <a href="#guestbook">Signing the Guestbook</a>
+                    <a href="#lightbox">Viewing Photos Full-Screen</a>
+                </div>
+                <div>
+                    <a href="#admin-login">Admin: Logging In</a>
+                    <a href="#admin-approval">Admin: Approving Photos</a>
+                    <a href="#admin-editing">Admin: Editing Photos</a>
+                    <a href="#admin-galleries">Admin: Managing Galleries</a>
+                    <a href="#admin-moderation">Admin: Moderation Tools</a>
+                    <a href="#keyboard">Keyboard Shortcuts</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== GUEST SECTIONS ===== -->
+
+        <section class="help-section" id="browsing">
+            <h2><span class="section-icon">📸</span> Browsing the Gallery</h2>
+            <p>The photo gallery is the heart of the site. Here's how to navigate it:</p>
+            <h3>Filter Tabs</h3>
+            <ul>
+                <li><strong>All Photos</strong> — Shows every approved photo</li>
+                <li><strong>Official</strong> — Professional and promoted wedding photos</li>
+                <li><strong>Guest Uploads</strong> — Photos shared by family and friends</li>
+                <li><strong>Custom Galleries</strong> — Curated collections (e.g. Ceremony, Reception) created by the admin</li>
+            </ul>
+            <h3>Hero Slideshow</h3>
+            <p>The large photo at the top of the page automatically rotates through the first 10 official photos with a smooth crossfade effect.</p>
+        </section>
+
+        <section class="help-section" id="liking">
+            <h2><span class="section-icon">❤️</span> Liking &amp; Commenting</h2>
+            <h3>Liking a Photo</h3>
+            <ol class="step-list">
+                <li>Click the <strong>heart icon</strong> (❤️) on any gallery photo or in the detail view</li>
+                <li>Click again to unlike</li>
+                <li>Your like is remembered in your browser — you won't accidentally double-like</li>
+            </ol>
+            <h3>Commenting on a Photo</h3>
+            <ol class="step-list">
+                <li>Click any photo to open the <strong>detail view</strong></li>
+                <li>In the sidebar, enter your <strong>name</strong> and your <strong>comment</strong></li>
+                <li>Press <kbd>Enter</kbd> or click <strong>Post</strong></li>
+                <li>Your comment appears instantly in the thread</li>
+            </ol>
+            <div class="callout">
+                <div class="callout-title">💡 Tip</div>
+                <p>Photos with comments show a 💬 badge with the comment count on the gallery thumbnail.</p>
+            </div>
+        </section>
+
+        <section class="help-section" id="uploading">
+            <h2><span class="section-icon">📤</span> Uploading Photos</h2>
+            <p>Share your favorite moments from the celebration!</p>
+            <ol class="step-list">
+                <li>Scroll to the <strong>Share Your Photos</strong> section</li>
+                <li><strong>Click the upload area</strong> or drag and drop your photos into it</li>
+                <li>Preview your photos — you can <strong>remove</strong> (✕) or <strong>edit</strong> (✎) each one before submitting</li>
+                <li>Enter your <strong>name</strong> and an optional <strong>caption</strong></li>
+                <li>Click <strong>Upload Photos</strong></li>
+                <li>Photos are automatically converted to JPG and sent for admin review</li>
+            </ol>
+            <div class="callout callout-warning">
+                <div class="callout-title">⚠️ Note</div>
+                <p>Uploaded photos won't appear in the gallery immediately — an admin needs to approve them first. This usually happens quickly!</p>
+            </div>
+            <h3>Photo Editor</h3>
+            <p>Before uploading, you can edit each photo with built-in tools:</p>
+            <ul>
+                <li><strong>Brightness, Contrast, Saturation</strong> — Adjust with sliders</li>
+                <li><strong>Filters</strong> — Apply preset looks (Warm, Cool, Vintage, B&amp;W, etc.)</li>
+                <li><strong>Crop</strong> — Select a region to crop</li>
+                <li><strong>Rotate</strong> — Rotate the photo 90° at a time</li>
+                <li><strong>Reset All</strong> — Return to the original unedited photo</li>
+            </ul>
+        </section>
+
+        <section class="help-section" id="guestbook">
+            <h2><span class="section-icon">📝</span> Signing the Guestbook</h2>
+            <p>Leave a message for the happy couple! The guestbook supports three types of entries:</p>
+            <h3>Text Message</h3>
+            <ol class="step-list">
+                <li>Enter your <strong>name</strong></li>
+                <li>Type your message in the text area</li>
+                <li>Click <strong>Sign the Guestbook</strong></li>
+            </ol>
+            <h3>Audio Message</h3>
+            <ol class="step-list">
+                <li>Switch to the <strong>Audio</strong> tab</li>
+                <li>Click the <strong>microphone button</strong> to start recording</li>
+                <li>Speak your message, then click <strong>stop</strong> when done</li>
+                <li>Preview your recording and submit</li>
+            </ol>
+            <h3>Video Message</h3>
+            <ol class="step-list">
+                <li>Switch to the <strong>Video</strong> tab</li>
+                <li>Allow camera/microphone access when prompted</li>
+                <li>Click <strong>record</strong> and speak to the camera</li>
+                <li>Review and submit your video message</li>
+            </ol>
+        </section>
+
+        <section class="help-section" id="lightbox">
+            <h2><span class="section-icon">🔍</span> Viewing Photos Full-Screen</h2>
+            <p>Click any photo in the gallery to see it larger in the detail view. From there:</p>
+            <ul>
+                <li>View the full-resolution image</li>
+                <li>See the uploader's name and caption</li>
+                <li>Like the photo and read/post comments</li>
+                <li>Navigate between photos using arrow keys</li>
+            </ul>
+        </section>
+
+        <!-- ===== ADMIN SECTIONS ===== -->
+
+        <section class="help-section" id="admin-login">
+            <h2><span class="section-icon">🔐</span> Admin: Logging In <span class="admin-badge">Admin</span></h2>
+            <ol class="step-list">
+                <li>Click the <strong>lock icon</strong> (🔒) in the top-right corner of the navigation bar</li>
+                <li>Enter the <strong>admin passcode</strong> in the modal</li>
+                <li>The site enters <strong>Admin Mode</strong> — you'll see additional controls throughout the page</li>
+            </ol>
+            <div class="callout">
+                <div class="callout-title">💡 Session Persistence</div>
+                <p>Your admin session stays active across page reloads. It only ends when you click the lock icon again to log out, or close the browser tab.</p>
+            </div>
+        </section>
+
+        <section class="help-section" id="admin-approval">
+            <h2><span class="section-icon">✅</span> Admin: Approving Photos <span class="admin-badge">Admin</span></h2>
+            <p>When guests upload photos, they appear in the <strong>Pending Approval</strong> section at the top of the page.</p>
+            <h3>Individual Actions</h3>
+            <ul>
+                <li><strong>✓ Approve</strong> — Adds the photo to the gallery</li>
+                <li><strong>✎ Edit</strong> — Opens the photo editor before approving</li>
+                <li><strong>✕ Reject</strong> — Permanently deletes the photo</li>
+            </ul>
+            <h3>Batch Selection</h3>
+            <ol class="step-list">
+                <li>Click the <strong>checkbox</strong> on individual photos to select them (gold outline shows selection)</li>
+                <li>Use <strong>Select All</strong> to toggle all photos</li>
+                <li>Click <strong>✓ Approve Selected (N)</strong> to batch approve</li>
+                <li>Click <strong>✕ Reject Selected (N)</strong> to batch delete (with confirmation)</li>
+            </ol>
+            <p>You can also use <strong>✓ Approve All</strong> to approve everything at once.</p>
+        </section>
+
+        <section class="help-section" id="admin-editing">
+            <h2><span class="section-icon">✎</span> Admin: Editing Photos <span class="admin-badge">Admin</span></h2>
+            <p>In admin mode, the <strong>edit button</strong> (✎) appears on all photos except the main wedding photo.</p>
+            <h3>Photo Editor Tools</h3>
+            <ul>
+                <li><strong>Brightness / Contrast / Saturation</strong> sliders</li>
+                <li><strong>Preset Filters</strong> — Warm, Cool, Vintage, B&amp;W, Sepia, Dramatic, and more</li>
+                <li><strong>Crop</strong> — Draw a crop selection, drag corners to resize, click Confirm</li>
+                <li><strong>Rotate</strong> — 90° clockwise rotation</li>
+                <li><strong>Reset All</strong> — Revert to the original uploaded photo (from Firestore's <code>originalUrl</code>)</li>
+                <li><strong>Save</strong> — Applies your edits and updates the photo in the gallery</li>
+            </ul>
+            <h3>Promote / Demote</h3>
+            <p>In the photo detail view:</p>
+            <ul>
+                <li><strong>★ Promote to Official</strong> — Moves a guest photo to the "Official" category</li>
+                <li><strong>↓ Demote to Guest</strong> — Moves it back to guest</li>
+            </ul>
+        </section>
+
+        <section class="help-section" id="admin-galleries">
+            <h2><span class="section-icon">🗂️</span> Admin: Managing Galleries <span class="admin-badge">Admin</span></h2>
+            <p>Create curated photo collections for different parts of the celebration.</p>
+            <h3>Creating a Gallery</h3>
+            <ol class="step-list">
+                <li>In admin mode, click the <strong>+</strong> button next to the filter tabs</li>
+                <li>Enter a name (e.g. "Ceremony", "Reception", "Getting Ready")</li>
+                <li>Click <strong>Create</strong> — a new filter tab appears</li>
+            </ol>
+            <h3>Assigning Photos to a Gallery</h3>
+            <ol class="step-list">
+                <li>Click any photo to open the detail view</li>
+                <li>Use the <strong>Gallery</strong> dropdown to assign it to a gallery</li>
+                <li>Select "None" to unassign</li>
+            </ol>
+            <h3>Editing / Deleting a Gallery</h3>
+            <ul>
+                <li>Click the <strong>✎ pencil icon</strong> on any gallery tab to rename or delete it</li>
+                <li>Deleting a gallery unassigns its photos — photos are <strong>not</strong> deleted</li>
+            </ul>
+            <h3>Reordering Photos</h3>
+            <p>In admin mode, each photo shows <strong>◄ ►</strong> arrows at the top:</p>
+            <ul>
+                <li>Click <strong>◄</strong> to move a photo one position left</li>
+                <li>Click <strong>►</strong> to move it one position right</li>
+                <li>Order is saved to the database and persists across page reloads</li>
+            </ul>
+        </section>
+
+        <section class="help-section" id="admin-moderation">
+            <h2><span class="section-icon">🛡️</span> Admin: Moderation Tools <span class="admin-badge">Admin</span></h2>
+            <h3>Deleting Photos</h3>
+            <p>In admin mode, click the <strong>✕</strong> button on any gallery photo (except the main photo). A confirmation dialog appears before deletion.</p>
+            <h3>Deleting Comments</h3>
+            <p>In admin mode, each comment in the detail view shows a <strong>✕</strong> button. Click it to remove inappropriate comments.</p>
+            <h3>Resetting Likes</h3>
+            <p>In the photo detail view, the <strong>Reset Likes</strong> button appears in admin mode. This resets the like count to zero.</p>
+            <h3>Deleting Guestbook Entries</h3>
+            <p>In admin mode, each guestbook entry shows a delete button for removing entries.</p>
+
+            <div class="callout callout-warning">
+                <div class="callout-title">⚠️ Important</div>
+                <p>Deletions are permanent. Deleted photos are removed from both the database and cloud storage and cannot be recovered.</p>
+            </div>
+        </section>
+
+        <section class="help-section" id="keyboard">
+            <h2><span class="section-icon">⌨️</span> Keyboard Shortcuts</h2>
+            <table class="key-table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Action</th>
+                        <th>Where</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><kbd>Esc</kbd></td>
+                        <td>Close lightbox / modal</td>
+                        <td>Anywhere</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>←</kbd></td>
+                        <td>Previous photo</td>
+                        <td>Lightbox</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>→</kbd></td>
+                        <td>Next photo</td>
+                        <td>Lightbox</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Enter</kbd></td>
+                        <td>Submit comment / guestbook</td>
+                        <td>Input fields</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Footer -->
+        <footer class="help-footer">
+            <p>Russ &amp; Brit &mdash; &copy; 2026 &mdash; <a href="/">Return to site</a></p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
