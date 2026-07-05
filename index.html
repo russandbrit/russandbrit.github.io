@@ -76,12 +76,21 @@
         <div class="petals-container" id="petals-container"></div>
     </section>
 
+    <!-- ===== SCRIPTURE QUOTE ===== -->
+    <section class="quote-section" id="quote">
+        <div class="quote-ornament">&mdash; &diams; &mdash;</div>
+        <blockquote class="quote-text">
+            &ldquo;For wherever you go, I will go, and wherever you live, I will live; your people will be my people, and your God will be my God.&rdquo;
+        </blockquote>
+        <cite class="quote-cite">Ruth 1:16&ndash;17</cite>
+    </section>
+
     <!-- ===== GALLERY SECTION ===== -->
     <section id="gallery" class="section gallery-section">
         <div class="section-header">
             <span class="section-tag">Memories</span>
             <h2 class="section-title">Our Photo Gallery</h2>
-            <p class="section-desc">Relive the magic through the eyes of everyone who celebrated with us</p>
+            <p class="section-desc">Thank you to our amazing family and friends who made our day so special &mdash; we love seeing it through your eyes</p>
         </div>
 
         <!-- Gallery Filter -->
@@ -311,6 +320,88 @@
             <div class="lightbox-info" id="lightbox-info">
                 <p class="lightbox-caption" id="lightbox-caption"></p>
                 <p class="lightbox-credit" id="lightbox-credit"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PHOTO EDITOR MODAL ===== -->
+    <div id="photo-editor" class="photo-editor" style="display:none;">
+        <div class="editor-header">
+            <button class="editor-cancel" id="editor-cancel">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Cancel
+            </button>
+            <span class="editor-title">Edit Photo</span>
+            <button class="editor-apply btn btn-primary" id="editor-apply">Apply</button>
+        </div>
+
+        <div class="editor-body">
+            <div class="editor-canvas-wrap">
+                <canvas id="editor-canvas"></canvas>
+            </div>
+
+            <div class="editor-controls">
+                <!-- Rotate -->
+                <div class="editor-control-group">
+                    <span class="editor-control-label">Rotate</span>
+                    <div class="editor-rotate-btns">
+                        <button type="button" class="editor-icon-btn" id="editor-rotate-left" title="Rotate left">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="editor-icon-btn" id="editor-rotate-right" title="Rotate right">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Brightness -->
+                <div class="editor-control-group">
+                    <div class="editor-slider-header">
+                        <span class="editor-control-label">Brightness</span>
+                        <span class="editor-slider-value" id="brightness-value">100%</span>
+                    </div>
+                    <input type="range" class="editor-slider" id="editor-brightness" min="50" max="150" value="100">
+                </div>
+
+                <!-- Contrast -->
+                <div class="editor-control-group">
+                    <div class="editor-slider-header">
+                        <span class="editor-control-label">Contrast</span>
+                        <span class="editor-slider-value" id="contrast-value">100%</span>
+                    </div>
+                    <input type="range" class="editor-slider" id="editor-contrast" min="50" max="150" value="100">
+                </div>
+
+                <!-- Saturation -->
+                <div class="editor-control-group">
+                    <div class="editor-slider-header">
+                        <span class="editor-control-label">Saturation</span>
+                        <span class="editor-slider-value" id="saturation-value">100%</span>
+                    </div>
+                    <input type="range" class="editor-slider" id="editor-saturation" min="0" max="200" value="100">
+                </div>
+
+                <!-- Preset Filters -->
+                <div class="editor-control-group">
+                    <span class="editor-control-label">Filters</span>
+                    <div class="editor-filters" id="editor-filters">
+                        <button type="button" class="editor-filter-btn active" data-filter="none">Original</button>
+                        <button type="button" class="editor-filter-btn" data-filter="warm">Warm</button>
+                        <button type="button" class="editor-filter-btn" data-filter="cool">Cool</button>
+                        <button type="button" class="editor-filter-btn" data-filter="bw">B&amp;W</button>
+                        <button type="button" class="editor-filter-btn" data-filter="vintage">Vintage</button>
+                        <button type="button" class="editor-filter-btn" data-filter="soft">Soft</button>
+                    </div>
+                </div>
+
+                <!-- Reset -->
+                <button type="button" class="editor-reset" id="editor-reset">Reset All</button>
             </div>
         </div>
     </div>

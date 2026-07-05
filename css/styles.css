@@ -567,6 +567,44 @@ textarea {
     margin: 0 auto;
 }
 
+/* ---------- Scripture Quote ---------- */
+.quote-section {
+    text-align: center;
+    padding: var(--space-3xl) var(--space-xl);
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+.quote-ornament {
+    font-size: 1rem;
+    color: var(--color-gold);
+    letter-spacing: 0.5em;
+    margin-bottom: var(--space-xl);
+    opacity: 0.6;
+}
+
+.quote-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.8;
+    color: var(--color-text);
+    margin: 0 0 var(--space-lg);
+    border: none;
+    padding: 0;
+}
+
+.quote-cite {
+    font-family: var(--font-body);
+    font-style: normal;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+}
+
 /* ---------- Gallery Section ---------- */
 .gallery-section {
     max-width: 1400px;
@@ -1465,5 +1503,288 @@ textarea {
 
     .gallery-grid {
         grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ---------- Photo Editor Modal ---------- */
+.photo-editor {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+    animation: editor-in 0.3s var(--ease-out);
+}
+
+@keyframes editor-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-xl);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.editor-cancel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) ease;
+}
+
+.editor-cancel:hover {
+    color: var(--color-text);
+}
+
+.editor-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--color-gold);
+    letter-spacing: 0.05em;
+}
+
+.editor-apply {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
+}
+
+.editor-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.editor-canvas-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    background: #080810;
+    overflow: hidden;
+}
+
+.editor-canvas-wrap canvas {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Editor Controls Panel */
+.editor-controls {
+    width: 300px;
+    flex-shrink: 0;
+    padding: var(--space-xl);
+    overflow-y: auto;
+    border-left: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    background: var(--color-bg-secondary);
+}
+
+.editor-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.editor-control-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.editor-slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-slider-value {
+    font-size: 0.75rem;
+    color: var(--color-gold);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Custom Range Slider */
+.editor-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--color-surface);
+    border-radius: var(--radius-full);
+    outline: none;
+    border: none;
+    padding: 0;
+    margin: var(--space-sm) 0;
+}
+
+.editor-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    cursor: pointer;
+    border: 2px solid var(--color-bg);
+    box-shadow: 0 0 0 2px var(--color-gold-dark), var(--shadow-sm);
+    transition: transform var(--duration-fast) ease,
+                box-shadow var(--duration-fast) ease;
+}
+
+.editor-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 2px var(--color-gold), var(--shadow-gold);
+}
+
+.editor-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    cursor: pointer;
+    border: 2px solid var(--color-bg);
+    box-shadow: 0 0 0 2px var(--color-gold-dark);
+}
+
+/* Rotate Buttons */
+.editor-rotate-btns {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.editor-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    transition: all var(--duration-fast) ease;
+}
+
+.editor-icon-btn:hover {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+    background: var(--color-gold-glow);
+}
+
+/* Filter Preset Buttons */
+.editor-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-xs);
+}
+
+.editor-filter-btn {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    transition: all var(--duration-fast) ease;
+    text-align: center;
+}
+
+.editor-filter-btn:hover {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+}
+
+.editor-filter-btn.active {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+    color: var(--color-bg);
+    box-shadow: var(--shadow-gold);
+}
+
+/* Reset Button */
+.editor-reset {
+    font-size: 0.8rem;
+    color: var(--color-text-faint);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color var(--duration-fast) ease;
+    padding: var(--space-sm) 0;
+    margin-top: auto;
+}
+
+.editor-reset:hover {
+    color: var(--color-error);
+}
+
+/* Upload Preview Edit Button */
+.upload-preview-edit {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(201, 168, 76, 0.9);
+    color: var(--color-bg);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--duration-fast) ease,
+                transform var(--duration-fast) ease;
+    border: none;
+    padding: 0;
+}
+
+.upload-preview-edit:hover {
+    background: var(--color-gold);
+    transform: scale(1.1);
+}
+
+/* Editor Responsive */
+@media (max-width: 768px) {
+    .editor-body {
+        flex-direction: column;
+    }
+
+    .editor-canvas-wrap {
+        flex: 1;
+        min-height: 0;
+        padding: var(--space-md);
+    }
+
+    .editor-controls {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+        max-height: 45vh;
+        padding: var(--space-lg);
+        gap: var(--space-lg);
+    }
+
+    .editor-filters {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .editor-header {
+        padding: var(--space-sm) var(--space-md);
     }
 }

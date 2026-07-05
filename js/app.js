@@ -427,8 +427,17 @@ function renderPreviews() {
             renderPreviews();
             uploadSubmit.disabled = selectedFiles.length === 0;
         });
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.className = 'upload-preview-edit';
+        editBtn.innerHTML = '✎';
+        editBtn.title = 'Edit photo';
+        editBtn.addEventListener('click', () => {
+            openPhotoEditor(index);
+        });
         item.appendChild(img);
         item.appendChild(removeBtn);
+        item.appendChild(editBtn);
         uploadPreviews.appendChild(item);
     });
 }
@@ -957,3 +966,212 @@ try {
 } catch (e) {
     console.log('Real-time listener not available:', e);
 }
+
+// ==================== PHOTO EDITOR ====================
+
+const photoEditorModal = document.getElementById('photo-editor');
+const editorCanvas = document.getElementById('editor-canvas');
+const editorCtx = editorCanvas.getContext('2d');
+
+// Editor state
+let editorState = {
+    fileIndex: -1,
+    originalImage: null,   // HTMLImageElement with original pixels
+    rotation: 0,           // 0, 90, 180, 270
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    filter: 'none'
+};
+
+// Filter presets — each returns a CSS filter string to layer on top of the sliders
+const filterPresets = {
+    none:    { brightness: 100, contrast: 100, saturation: 100, extra: '' },
+    warm:    { brightness: 105, contrast: 102, saturation: 115, extra: 'sepia(15%)' },
+    cool:    { brightness: 100, contrast: 105, saturation: 90,  extra: 'hue-rotate(15deg)' },
+    bw:      { brightness: 105, contrast: 115, saturation: 0,   extra: '' },
+    vintage: { brightness: 95,  contrast: 90,  saturation: 80,  extra: 'sepia(30%)' },
+    soft:    { brightness: 108, contrast: 92,  saturation: 95,  extra: 'blur(0.4px)' }
+};
+
+function openPhotoEditor(fileIndex) {
+    editorState.fileIndex = fileIndex;
+    editorState.rotation = 0;
+    editorState.brightness = 100;
+    editorState.contrast = 100;
+    editorState.saturation = 100;
+    editorState.filter = 'none';
+
+    // Reset UI controls
+    document.getElementById('editor-brightness').value = 100;
+    document.getElementById('editor-contrast').value = 100;
+    document.getElementById('editor-saturation').value = 100;
+    document.getElementById('brightness-value').textContent = '100%';
+    document.getElementById('contrast-value').textContent = '100%';
+    document.getElementById('saturation-value').textContent = '100%';
+    document.querySelectorAll('.editor-filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.filter === 'none');
+    });
+
+    // Load the image
+    const file = selectedFiles[fileIndex];
+    const img = new Image();
+    img.onload = () => {
+        editorState.originalImage = img;
+        renderEditor();
+        photoEditorModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+    img.src = URL.createObjectURL(file);
+}
+
+function closePhotoEditor() {
+    photoEditorModal.style.display = 'none';
+    document.body.style.overflow = '';
+    editorState.originalImage = null;
+}
+
+function renderEditor() {
+    const img = editorState.originalImage;
+    if (!img) return;
+
+    const rot = editorState.rotation;
+    const isRotated = rot === 90 || rot === 270;
+
+    // Set canvas dimensions based on rotation
+    const cw = isRotated ? img.naturalHeight : img.naturalWidth;
+    const ch = isRotated ? img.naturalWidth : img.naturalHeight;
+    editorCanvas.width = cw;
+    editorCanvas.height = ch;
+
+    // Build the CSS filter string
+    const preset = filterPresets[editorState.filter] || filterPresets.none;
+    const b = editorState.filter === 'none' ? editorState.brightness : preset.brightness;
+    const c = editorState.filter === 'none' ? editorState.contrast : preset.contrast;
+    const s = editorState.filter === 'none' ? editorState.saturation : preset.saturation;
+    let filterStr = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+    if (preset.extra) filterStr += ` ${preset.extra}`;
+
+    editorCtx.clearRect(0, 0, cw, ch);
+    editorCtx.save();
+
+    // Apply rotation
+    editorCtx.translate(cw / 2, ch / 2);
+    editorCtx.rotate((rot * Math.PI) / 180);
+    editorCtx.translate(-img.naturalWidth / 2, -img.naturalHeight / 2);
+
+    // Apply filter
+    editorCtx.filter = filterStr;
+
+    // Draw
+    editorCtx.drawImage(img, 0, 0);
+    editorCtx.restore();
+}
+
+// --- Editor Controls ---
+
+// Rotate
+document.getElementById('editor-rotate-left').addEventListener('click', () => {
+    editorState.rotation = (editorState.rotation - 90 + 360) % 360;
+    renderEditor();
+});
+
+document.getElementById('editor-rotate-right').addEventListener('click', () => {
+    editorState.rotation = (editorState.rotation + 90) % 360;
+    renderEditor();
+});
+
+// Sliders
+const sliderIds = ['brightness', 'contrast', 'saturation'];
+sliderIds.forEach(name => {
+    const slider = document.getElementById(`editor-${name}`);
+    const valueLabel = document.getElementById(`${name}-value`);
+
+    slider.addEventListener('input', () => {
+        editorState[name] = parseInt(slider.value);
+        valueLabel.textContent = slider.value + '%';
+
+        // If a preset filter is active and user adjusts sliders, switch to "Original" mode
+        // so the sliders take effect directly
+        if (editorState.filter !== 'none') {
+            editorState.filter = 'none';
+            document.querySelectorAll('.editor-filter-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.filter === 'none');
+            });
+        }
+
+        renderEditor();
+    });
+});
+
+// Filter presets
+document.querySelectorAll('.editor-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.editor-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        editorState.filter = btn.dataset.filter;
+
+        // Update slider UI to show preset values (visual feedback)
+        const preset = filterPresets[editorState.filter];
+        if (editorState.filter !== 'none') {
+            document.getElementById('editor-brightness').value = preset.brightness;
+            document.getElementById('editor-contrast').value = preset.contrast;
+            document.getElementById('editor-saturation').value = preset.saturation;
+            document.getElementById('brightness-value').textContent = preset.brightness + '%';
+            document.getElementById('contrast-value').textContent = preset.contrast + '%';
+            document.getElementById('saturation-value').textContent = preset.saturation + '%';
+        }
+
+        renderEditor();
+    });
+});
+
+// Reset
+document.getElementById('editor-reset').addEventListener('click', () => {
+    editorState.rotation = 0;
+    editorState.brightness = 100;
+    editorState.contrast = 100;
+    editorState.saturation = 100;
+    editorState.filter = 'none';
+
+    document.getElementById('editor-brightness').value = 100;
+    document.getElementById('editor-contrast').value = 100;
+    document.getElementById('editor-saturation').value = 100;
+    document.getElementById('brightness-value').textContent = '100%';
+    document.getElementById('contrast-value').textContent = '100%';
+    document.getElementById('saturation-value').textContent = '100%';
+    document.querySelectorAll('.editor-filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.filter === 'none');
+    });
+
+    renderEditor();
+});
+
+// Cancel
+document.getElementById('editor-cancel').addEventListener('click', closePhotoEditor);
+
+// Apply — export the canvas to a Blob and replace the file in selectedFiles
+document.getElementById('editor-apply').addEventListener('click', () => {
+    editorCanvas.toBlob((blob) => {
+        if (blob) {
+            // Create a new File object with a descriptive name
+            const originalName = selectedFiles[editorState.fileIndex].name || 'photo';
+            const baseName = originalName.replace(/\.[^.]+$/, '');
+            const editedFile = new File([blob], `${baseName}_edited.jpg`, {
+                type: 'image/jpeg'
+            });
+            selectedFiles[editorState.fileIndex] = editedFile;
+            renderPreviews();
+            showToast('Photo edits applied! ✨', 'success');
+        }
+        closePhotoEditor();
+    }, 'image/jpeg', 0.92);
+});
+
+// Close on Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && photoEditorModal.style.display !== 'none') {
+        closePhotoEditor();
+    }
+});
+

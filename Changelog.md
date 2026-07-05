@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-04
+
+### Added
+- Photo editor for uploads — rotate, brightness/contrast/saturation sliders, and 6 preset filters (Original, Warm, Cool, B&W, Vintage, Soft) with live canvas preview
+- Edit button (✎) on each upload preview thumbnail to open the editor
+- Ruth 1:16–17 scripture quote section between hero and gallery with decorative gold ornament styling
+
+### Changed
+- Gallery subtitle reworded to thank family and friends who made the day special
+
 ## [1.1.0] - 2026-07-04
 
 ### Added
