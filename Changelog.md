@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.2] - 2026-07-05
+
+### Added
+- **Staging photo preview** — Tapping/clicking a photo in the Pending Approval section now opens the full photo-detail-modal (with likes, comments, and full-size view), matching the main gallery behavior
+- Action buttons (Approve, Edit, Reject) and checkboxes still work independently without triggering the modal
+
 ## [2.8.1] - 2026-07-05
 
 ### Fixed

@@ -2258,6 +2258,14 @@ function renderStaging() {
             </div>
         `;
 
+        // Click to open photo detail (but not if clicking buttons/checkbox)
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.staging-item-actions') &&
+                !e.target.closest('.staging-checkbox-wrap')) {
+                openPhotoDetail(photo);
+            }
+        });
+
         // Checkbox toggle
         item.querySelector('.staging-checkbox').addEventListener('change', (e) => {
             if (e.target.checked) {
