@@ -1049,25 +1049,33 @@ function openPhotoEditor(fileIndex) {
     img.src = URL.createObjectURL(file);
 }
 
-function openGalleryPhotoEditor(photo) {
+async function openGalleryPhotoEditor(photo) {
     editorState.mode = 'gallery';
     editorState.fileIndex = -1;
     editorState.galleryPhoto = photo;
     resetEditorControls();
 
-    // Load the image from URL
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-        editorState.originalImage = img;
-        renderEditor();
-        photoEditorModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    };
-    img.onerror = () => {
-        showToast('Could not load image for editing. Check CORS settings.', 'error');
-    };
-    img.src = photo.url;
+    try {
+        // Fetch image as blob to avoid CORS canvas tainting
+        const response = await fetch(photo.url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.onload = () => {
+            editorState.originalImage = img;
+            renderEditor();
+            photoEditorModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        };
+        img.onerror = () => {
+            showToast('Could not load image for editing.', 'error');
+        };
+        img.src = blobUrl;
+    } catch (e) {
+        console.error('Failed to fetch image for editing:', e);
+        showToast('Could not load image for editing.', 'error');
+    }
 }
 
 function resetEditorControls() {
