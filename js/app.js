@@ -184,8 +184,69 @@ navLinks.forEach(link => {
     link.addEventListener('click', () => {
         navToggle.classList.remove('open');
         navMenu.classList.remove('open');
+        // Also close the "More" dropdown
+        const moreDropdown = document.getElementById('nav-more-dropdown');
+        if (moreDropdown) moreDropdown.classList.remove('open');
     });
 });
+
+// ==================== NAV "MORE" DROPDOWN ====================
+
+const moreDropdown = document.getElementById('nav-more-dropdown');
+const moreToggle = document.getElementById('nav-more-toggle');
+
+if (moreToggle && moreDropdown) {
+    moreToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        moreDropdown.classList.toggle('open');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!moreDropdown.contains(e.target)) {
+            moreDropdown.classList.remove('open');
+        }
+    });
+}
+
+// ==================== UPLOAD SECTION COLLAPSE ====================
+
+const uploadSection = document.getElementById('upload');
+const uploadCollapseToggle = document.getElementById('upload-collapse-toggle');
+
+if (uploadCollapseToggle && uploadSection) {
+    uploadCollapseToggle.addEventListener('click', () => {
+        const isCollapsed = uploadSection.classList.contains('upload-collapsed');
+        uploadSection.classList.toggle('upload-collapsed');
+        uploadCollapseToggle.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
+    });
+
+    // Auto-expand when navigating via #upload anchor (nav link or direct URL)
+    function expandUploadIfNeeded() {
+        if (window.location.hash === '#upload') {
+            uploadSection.classList.remove('upload-collapsed');
+            uploadCollapseToggle.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    // Check on page load
+    expandUploadIfNeeded();
+
+    // Check when hash changes (clicking nav link)
+    window.addEventListener('hashchange', expandUploadIfNeeded);
+
+    // Also listen to the upload nav link specifically
+    const uploadNavLink = document.querySelector('a[href="#upload"]');
+    if (uploadNavLink) {
+        uploadNavLink.addEventListener('click', () => {
+            // Small delay to let the hash change happen first
+            setTimeout(() => {
+                uploadSection.classList.remove('upload-collapsed');
+                uploadCollapseToggle.setAttribute('aria-expanded', 'true');
+            }, 100);
+        });
+    }
+}
 
 // ==================== FLOATING PETALS ====================
 

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-07-06
+
+### Added
+- **"More" nav dropdown** — Upload Photos, Downloads, and Help are now grouped under a "More" dropdown menu in the navigation bar, keeping the primary nav clean with just Home, Photos, and Guestbook
+- Dropdown features glassmorphism styling with smooth slide-down animation on desktop; flattens inline within hamburger menu on mobile
+- Click-outside-to-close behavior on the dropdown
+
+### Changed
+- **Upload section moved to bottom of page** — Now appears after the Guestbook section, before the Footer (previously between Gallery and Guestbook)
+- **Upload section collapsed by default** — Features a collapsible toggle header with upload icon, "Share Your Photos & Videos" title, and gold chevron; click to expand/collapse with smooth animation
+- Upload section auto-expands when navigating via the `#upload` anchor (from nav link or direct URL)
+- Downloads page navigation updated to match the new "More" dropdown structure
+
 ## [3.0.3] - 2026-07-06
 
 ### Fixed
