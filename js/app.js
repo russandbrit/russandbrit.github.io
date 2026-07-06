@@ -389,7 +389,7 @@ function renderGallery() {
             ${commentCount > 0 ? `<span class="gallery-item-comments">💬 ${commentCount}</span>` : ''}
             ${photo.id !== 'main' ? `
                 <button class="gallery-item-delete" data-photo-id="${photo.id}" title="Delete photo">&times;</button>
-                <button class="gallery-item-edit" data-photo-id="${photo.id}" title="Edit photo">✎</button>
+                ${!(photo.mediaType === 'video' || isVideoUrl(photo.url)) ? `<button class="gallery-item-edit" data-photo-id="${photo.id}" title="Edit photo">✎</button>` : ''}
             ` : ''}
             <div class="gallery-item-move">
                 <button class="move-btn move-left" title="Move left">◄</button>
@@ -768,6 +768,10 @@ function openPhotoDetail(photo, source, index) {
     // Show/hide staging actions
     const stagingActionsDiv = document.getElementById('photo-detail-staging-actions');
     stagingActionsDiv.style.display = (detailSource === 'staging') ? 'flex' : 'none';
+    // Hide edit button in staging actions for videos
+    const detailEditBtn = document.getElementById('detail-staging-edit');
+    const isDetailVideo = photo.mediaType === 'video' || isVideoUrl(photo.url);
+    if (detailEditBtn) detailEditBtn.style.display = isDetailVideo ? 'none' : 'inline-block';
 
     // Show/hide prev/next (hide if only 1 photo in list)
     const list = getDetailList();
@@ -2665,7 +2669,7 @@ function renderStaging() {
                 </label>
                 <div class="staging-item-actions">
                     <button class="staging-btn staging-btn-approve" title="Approve">✓ Approve</button>
-                    <button class="staging-btn staging-btn-edit" title="Edit">✎ Edit</button>
+                    ${!isVideo ? `<button class="staging-btn staging-btn-edit" title="Edit">✎ Edit</button>` : ''}
                     <button class="staging-btn staging-btn-reject" title="Reject">✕ Reject</button>
                 </div>
             `;
