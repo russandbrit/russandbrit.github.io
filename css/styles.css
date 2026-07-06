@@ -708,6 +708,40 @@ textarea {
     padding: var(--space-md) var(--space-lg);
     background: rgba(201, 168, 76, 0.08);
     border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    transition: background var(--duration-fast) ease;
+}
+
+.staging-group-header:hover {
+    background: rgba(201, 168, 76, 0.14);
+}
+
+.staging-group-chevron {
+    transition: transform var(--duration-normal) ease;
+    color: var(--gold);
+    flex-shrink: 0;
+}
+
+.staging-group-collapsed .staging-group-chevron {
+    transform: rotate(-90deg);
+}
+
+.staging-group-body {
+    overflow: hidden;
+    max-height: 2000px;
+    transition: max-height 0.3s ease;
+}
+
+.staging-group-collapsed .staging-group-body {
+    max-height: 0;
+}
+
+.staging-group-collapsed .staging-group-header {
+    border-bottom-color: transparent;
 }
 
 .staging-group-info {

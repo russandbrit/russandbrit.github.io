@@ -2500,15 +2500,15 @@ function renderStaging() {
         const groupPhotos = groups[uploaderName];
         const groupIds = groupPhotos.map(p => p.id);
 
-        // Group container
+        // Group container — collapsed by default
         const groupDiv = document.createElement('div');
-        groupDiv.className = 'staging-group';
+        groupDiv.className = 'staging-group staging-group-collapsed';
 
         // Get earliest timestamp in group for display
         const earliest = groupPhotos.reduce((min, p) => p.timestamp < min ? p.timestamp : min, groupPhotos[0].timestamp);
         const timeStr = earliest.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-        // Group header
+        // Group header (clickable to toggle)
         const header = document.createElement('div');
         header.className = 'staging-group-header';
         header.innerHTML = `
@@ -2519,7 +2519,16 @@ function renderStaging() {
                 </h3>
                 <span class="staging-group-meta">${groupPhotos.length} file${groupPhotos.length !== 1 ? 's' : ''} · ${timeStr}</span>
             </div>
+            <svg class="staging-group-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         `;
+
+        header.addEventListener('click', () => {
+            groupDiv.classList.toggle('staging-group-collapsed');
+        });
+
+        // Collapsible body
+        const groupBody = document.createElement('div');
+        groupBody.className = 'staging-group-body';
 
         // Group actions bar
         const actionsBar = document.createElement('div');
@@ -2662,8 +2671,9 @@ function renderStaging() {
         });
 
         groupDiv.appendChild(header);
-        groupDiv.appendChild(actionsBar);
-        groupDiv.appendChild(grid);
+        groupBody.appendChild(actionsBar);
+        groupBody.appendChild(grid);
+        groupDiv.appendChild(groupBody);
         stagingGroups.appendChild(groupDiv);
     });
 }
