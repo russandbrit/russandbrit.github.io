@@ -111,6 +111,20 @@
         </div>
     </div>
 
+    <!-- ===== RENAME MODAL ===== -->
+    <div id="rename-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-card">
+            <h3 class="modal-title">Rename Zip File</h3>
+            <div class="form-group">
+                <input type="text" id="rename-input" placeholder="Enter new filename" autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline modal-btn" id="rename-cancel">Cancel</button>
+                <button class="btn btn-primary modal-btn" id="rename-save">Save</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== TOAST NOTIFICATIONS ===== -->
     <div id="toast-container" class="toast-container"></div>
 
@@ -258,6 +272,57 @@
         pendingDeleteFilename = null;
     });
 
+    // ==================== RENAME ====================
+    const renameModal = document.getElementById('rename-modal');
+    const renameInput = document.getElementById('rename-input');
+    let pendingRenameId = null;
+
+    function showRenameModal(docId, currentFilename) {
+        pendingRenameId = docId;
+        // Pre-fill with current name (without .zip extension)
+        const nameWithoutExt = currentFilename.replace(/\.zip$/i, '');
+        renameInput.value = nameWithoutExt;
+        renameModal.style.display = 'flex';
+        setTimeout(() => {
+            renameInput.focus();
+            renameInput.select();
+        }, 100);
+    }
+
+    document.getElementById('rename-cancel').addEventListener('click', () => {
+        renameModal.style.display = 'none';
+        pendingRenameId = null;
+    });
+
+    document.getElementById('rename-save').addEventListener('click', async () => {
+        if (!pendingRenameId) return;
+        const newName = renameInput.value.trim();
+        if (!newName) {
+            showToast('Please enter a filename', 'error');
+            return;
+        }
+
+        // Ensure .zip extension
+        const finalName = newName.endsWith('.zip') ? newName : newName + '.zip';
+
+        try {
+            await db.collection('downloads').doc(pendingRenameId).update({
+                filename: finalName
+            });
+            showToast(`Renamed to "${finalName}"`, 'success');
+        } catch (error) {
+            console.error('Rename error:', error);
+            showToast('Failed to rename zip file', 'error');
+        }
+
+        renameModal.style.display = 'none';
+        pendingRenameId = null;
+    });
+
+    renameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('rename-save').click();
+    });
+
     // ==================== TOAST ====================
     function showToast(message, type = 'success') {
         const container = document.getElementById('toast-container');
@@ -375,7 +440,13 @@
                     </svg>
                     Download
                 </a>
-                <button class="btn btn-danger download-delete-btn" data-doc-id="${docId}" data-filename="${escapeHtml(data.filename)}" title="Delete zip file">
+                <button class="btn download-rename-btn" title="Rename zip file">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                </button>
+                <button class="btn btn-danger download-delete-btn" title="Delete zip file">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -383,6 +454,12 @@
                 </button>
             </div>
         `;
+
+        // Attach rename handler
+        const renameBtn = card.querySelector('.download-rename-btn');
+        renameBtn.addEventListener('click', () => {
+            showRenameModal(docId, data.filename);
+        });
 
         // Attach delete handler
         const deleteBtn = card.querySelector('.download-delete-btn');

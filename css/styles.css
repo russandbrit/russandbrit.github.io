@@ -3157,7 +3157,8 @@ body.admin-mode .nav {
 }
 
 /* Admin delete button on download cards */
-.download-delete-btn {
+.download-delete-btn,
+.download-rename-btn {
     display: none;
     width: 40px;
     height: 40px;
@@ -3169,7 +3170,19 @@ body.admin-mode .nav {
     font-size: 0.8rem;
 }
 
-body.admin-mode .download-delete-btn {
+.download-rename-btn {
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+}
+
+.download-rename-btn:hover {
+    background: rgba(212, 175, 55, 0.3);
+    transform: scale(1.08);
+}
+
+body.admin-mode .download-delete-btn,
+body.admin-mode .download-rename-btn {
     display: flex;
 }
 
