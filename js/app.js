@@ -2470,12 +2470,7 @@ async function loadStagingPhotos() {
 }
 
 function updateStagingSelection() {
-    const count = selectedStagingIds.size;
-    document.getElementById('staging-approve-selected').style.display = count > 0 ? 'inline-block' : 'none';
-    document.getElementById('staging-reject-selected').style.display = count > 0 ? 'inline-block' : 'none';
-    document.getElementById('staging-approve-selected').textContent = `✓ Approve Selected (${count})`;
-    document.getElementById('staging-reject-selected').textContent = `✕ Reject Selected (${count})`;
-    document.getElementById('staging-select-all').checked = count > 0 && count === stagingPhotos.length;
+    // No-op: global actions removed; each group manages its own selection
 }
 
 function renderStaging() {
@@ -2483,7 +2478,6 @@ function renderStaging() {
     stagingGroups.innerHTML = '';
     stagingCount.textContent = `${stagingPhotos.length} pending`;
     stagingEmpty.style.display = stagingPhotos.length === 0 ? 'flex' : 'none';
-    updateStagingSelection();
 
     if (stagingPhotos.length === 0) return;
 
@@ -2690,67 +2684,6 @@ function renderStaging() {
     });
 }
 
-// Select all toggle
-document.getElementById('staging-select-all').addEventListener('change', (e) => {
-    if (e.target.checked) {
-        stagingPhotos.forEach(p => selectedStagingIds.add(p.id));
-    } else {
-        selectedStagingIds.clear();
-    }
-    renderStaging();
-});
-
-// Batch approve selected
-document.getElementById('staging-approve-selected').addEventListener('click', async () => {
-    if (selectedStagingIds.size === 0) return;
-    const count = selectedStagingIds.size;
-    const btn = document.getElementById('staging-approve-selected');
-    btn.disabled = true;
-    btn.textContent = 'Approving...';
-    try {
-        const batch = db.batch();
-        selectedStagingIds.forEach(id => {
-            batch.update(db.collection('photos').doc(id), { status: 'approved' });
-        });
-        await batch.commit();
-        showToast(`${count} photos approved! ✨`, 'success');
-        await loadStagingPhotos();
-        await loadPhotos();
-    } catch (e) {
-        console.error('Batch approve error:', e);
-        showToast('Failed to approve selected', 'error');
-    } finally {
-        btn.disabled = false;
-    }
-});
-
-// Batch reject selected
-document.getElementById('staging-reject-selected').addEventListener('click', async () => {
-    if (selectedStagingIds.size === 0) return;
-    const count = selectedStagingIds.size;
-    if (!confirm(`Reject and delete ${count} selected photos?`)) return;
-    const btn = document.getElementById('staging-reject-selected');
-    btn.disabled = true;
-    btn.textContent = 'Rejecting...';
-    try {
-        for (const id of selectedStagingIds) {
-            const photo = stagingPhotos.find(p => p.id === id);
-            if (photo && photo.url) {
-                try { await storage.refFromURL(photo.url).delete(); } catch (e) { /* ignore */ }
-            }
-            await db.collection('photos').doc(id).delete();
-        }
-        showToast(`${count} photos rejected`, 'success');
-        await loadStagingPhotos();
-        await loadPhotos();
-    } catch (e) {
-        console.error('Batch reject error:', e);
-        showToast('Failed to reject selected', 'error');
-    } finally {
-        btn.disabled = false;
-    }
-});
-
 async function approvePhoto(docId) {
     try {
         await db.collection('photos').doc(docId).update({ status: 'approved' });
@@ -2762,36 +2695,6 @@ async function approvePhoto(docId) {
         showToast('Failed to approve photo.', 'error');
     }
 }
-
-// Approve all pending
-document.getElementById('staging-approve-all').addEventListener('click', async () => {
-    if (stagingPhotos.length === 0) {
-        showToast('No pending photos to approve', 'warning');
-        return;
-    }
-
-    const btn = document.getElementById('staging-approve-all');
-    btn.disabled = true;
-    btn.textContent = 'Approving...';
-
-    try {
-        const batch = db.batch();
-        stagingPhotos.forEach(photo => {
-            const ref = db.collection('photos').doc(photo.id);
-            batch.update(ref, { status: 'approved' });
-        });
-        await batch.commit();
-        showToast(`${stagingPhotos.length} photos approved!`, 'success');
-        loadStagingPhotos();
-        loadPhotos();
-    } catch (error) {
-        console.error('Approve all error:', error);
-        showToast('Failed to approve all. Try individually.', 'error');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '✓ Approve All';
-    }
-});
 
 // Confirm delete flow
 function confirmDelete(type, id, mediaUrl, name) {
