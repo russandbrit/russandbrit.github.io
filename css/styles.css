@@ -403,6 +403,21 @@ textarea {
     font-weight: 300;
 }
 
+.hero-date {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--space-sm);
+    animation: fade-up 1.2s var(--ease-out) 0.95s both;
+}
+
+.hero-date sup {
+    font-size: 0.6em;
+}
+
 .hero-subtitle {
     font-size: 1.1rem;
     font-weight: 300;
