@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Downloads Page** (`downloads.html`) — Public page listing all zip files sorted by filename; anyone can view and download
 - **Admin Delete on Downloads** — Admin can delete zip files from the Downloads page (removes both Firestore doc and Storage file) with confirmation modal
 - **Admin Rename on Downloads** — Admin can rename zip files via pencil icon; modal pre-fills current name, auto-appends `.zip`
-- **Grouped Pending Approval** — Staging section groups photos by uploader name; each group shows name, caption (if entered), file count, and timestamp
+- **Grouped Pending Approval** — Staging section groups photos by upload session (not just name); each session gets its own collapsible group with name, caption, file count, and timestamp. Session IDs include uploader name and caption (e.g. `Dad_WeddingPhotos_a7b3c9`)
 - **Collapsible Groups** — Staging groups collapsed by default; click header to expand/collapse with chevron animation
 - **Per-Group Actions** — Each uploader group has its own Select All, Approve All, and Reject All buttons
 - Admin toggle, passcode modal, and session persistence on Downloads page
