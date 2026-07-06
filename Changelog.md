@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Zip File Creation** — "Make zip file download only" checkbox in upload form; when checked, files are bundled into a .zip and uploaded to the Downloads page **without** adding individual photos/videos to pending approval
 - **Downloads Page** (`downloads.html`) — Public page listing all zip files sorted by filename; anyone can view and download
 - **Admin Delete on Downloads** — Admin can delete zip files from the Downloads page (removes both Firestore doc and Storage file) with confirmation modal
+- **Admin Rename on Downloads** — Admin can rename zip files via pencil icon; modal pre-fills current name, auto-appends `.zip`
+- **Grouped Pending Approval** — Staging section groups photos by uploader name; each group shows name, caption (if entered), file count, and timestamp
+- **Collapsible Groups** — Staging groups collapsed by default; click header to expand/collapse with chevron animation
+- **Per-Group Actions** — Each uploader group has its own Select All, Approve All, and Reject All buttons
 - Admin toggle, passcode modal, and session persistence on Downloads page
 - JSZip library (CDN) for client-side zip creation
 - Real-time listener on downloads page for live updates
@@ -27,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - File validation updated: images max 10MB, videos max 100MB
 - Firestore photo documents now include `mediaType` field (`'image'` or `'video'`)
 - Downloads page heading: "Photo & Video Zips"
+- Help page (`help.html`) updated with all v3.0.0 features: video uploads, zip downloads, Downloads page, admin downloads management, grouped approval, and collapsible sections
 
 ## [2.9.0] - 2026-07-05
 
