@@ -114,7 +114,7 @@
             <p class="section-desc">Review, edit, and approve uploaded photos before they appear in the gallery</p>
         </div>
 
-        <div class="staging-actions">
+        <div class="staging-actions" id="staging-global-actions">
             <label class="staging-select-all-wrap">
                 <input type="checkbox" id="staging-select-all"> <span>Select All</span>
             </label>
@@ -125,9 +125,8 @@
             <span class="staging-count" id="staging-count">0 pending</span>
         </div>
 
-        <div class="gallery-grid staging-grid" id="staging-grid">
-            <!-- Pending photos loaded dynamically -->
-        </div>
+        <!-- Dynamic groups by uploader rendered here -->
+        <div id="staging-groups"></div>
 
         <div class="gallery-empty" id="staging-empty" style="display:none;">
             <div class="empty-icon">✅</div>

@@ -2440,7 +2440,6 @@ adminPasscodeInput.addEventListener('keydown', (e) => {
 
 // ==================== STAGING / MODERATION ====================
 
-const stagingGrid = document.getElementById('staging-grid');
 const stagingEmpty = document.getElementById('staging-empty');
 const stagingCount = document.getElementById('staging-count');
 let stagingPhotos = [];
@@ -2476,62 +2475,196 @@ function updateStagingSelection() {
 }
 
 function renderStaging() {
-    stagingGrid.innerHTML = '';
+    const stagingGroups = document.getElementById('staging-groups');
+    stagingGroups.innerHTML = '';
     stagingCount.textContent = `${stagingPhotos.length} pending`;
     stagingEmpty.style.display = stagingPhotos.length === 0 ? 'flex' : 'none';
     updateStagingSelection();
 
-    stagingPhotos.forEach((photo, sIndex) => {
-        const item = document.createElement('div');
-        item.className = 'gallery-item';
-        const isSelected = selectedStagingIds.has(photo.id);
-        if (isSelected) item.classList.add('staging-selected');
-        item.innerHTML = `
-            <img src="${photo.url}" alt="${photo.caption || 'Pending photo'}" loading="lazy">
-            <div class="gallery-item-overlay">
-                <p class="gallery-item-name">${escapeHtml(photo.name || 'Unknown')}</p>
-                ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
-            </div>
-            <label class="staging-checkbox-wrap">
-                <input type="checkbox" class="staging-checkbox" data-photo-id="${photo.id}" ${isSelected ? 'checked' : ''}>
-            </label>
-            <div class="staging-item-actions">
-                <button class="staging-btn staging-btn-approve" title="Approve">✓ Approve</button>
-                <button class="staging-btn staging-btn-edit" title="Edit">✎ Edit</button>
-                <button class="staging-btn staging-btn-reject" title="Reject">✕ Reject</button>
+    if (stagingPhotos.length === 0) return;
+
+    // Group photos by uploader name
+    const groups = {};
+    stagingPhotos.forEach((photo, globalIndex) => {
+        const name = photo.name || 'Unknown';
+        if (!groups[name]) {
+            groups[name] = [];
+        }
+        groups[name].push({ ...photo, globalIndex });
+    });
+
+    // Sort group names alphabetically
+    const sortedNames = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+
+    sortedNames.forEach(uploaderName => {
+        const groupPhotos = groups[uploaderName];
+        const groupIds = groupPhotos.map(p => p.id);
+
+        // Group container
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'staging-group';
+
+        // Get earliest timestamp in group for display
+        const earliest = groupPhotos.reduce((min, p) => p.timestamp < min ? p.timestamp : min, groupPhotos[0].timestamp);
+        const timeStr = earliest.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+        // Group header
+        const header = document.createElement('div');
+        header.className = 'staging-group-header';
+        header.innerHTML = `
+            <div class="staging-group-info">
+                <h3 class="staging-group-name">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    ${escapeHtml(uploaderName)}
+                </h3>
+                <span class="staging-group-meta">${groupPhotos.length} file${groupPhotos.length !== 1 ? 's' : ''} · ${timeStr}</span>
             </div>
         `;
 
-        // Click to open photo detail (but not if clicking buttons/checkbox)
-        item.addEventListener('click', (e) => {
-            if (!e.target.closest('.staging-item-actions') &&
-                !e.target.closest('.staging-checkbox-wrap')) {
-                openPhotoDetail(photo, 'staging', sIndex);
+        // Group actions bar
+        const actionsBar = document.createElement('div');
+        actionsBar.className = 'staging-group-actions';
+
+        const selectAllLabel = document.createElement('label');
+        selectAllLabel.className = 'staging-select-all-wrap staging-group-select-wrap';
+        const selectAllCb = document.createElement('input');
+        selectAllCb.type = 'checkbox';
+        selectAllCb.className = 'staging-group-select-all';
+        const allSelected = groupIds.every(id => selectedStagingIds.has(id));
+        selectAllCb.checked = allSelected;
+        selectAllLabel.appendChild(selectAllCb);
+        selectAllLabel.appendChild(document.createTextNode(' Select All'));
+
+        selectAllCb.addEventListener('change', (e) => {
+            groupIds.forEach(id => {
+                if (e.target.checked) selectedStagingIds.add(id);
+                else selectedStagingIds.delete(id);
+            });
+            renderStaging();
+        });
+
+        const approveGroupBtn = document.createElement('button');
+        approveGroupBtn.className = 'btn btn-primary staging-group-btn';
+        approveGroupBtn.textContent = `✓ Approve All (${groupPhotos.length})`;
+        approveGroupBtn.addEventListener('click', async () => {
+            approveGroupBtn.disabled = true;
+            approveGroupBtn.textContent = 'Approving...';
+            try {
+                const batch = db.batch();
+                groupIds.forEach(id => batch.update(db.collection('photos').doc(id), { status: 'approved' }));
+                await batch.commit();
+                showToast(`${groupPhotos.length} photos from ${uploaderName} approved! ✨`, 'success');
+                await loadStagingPhotos();
+                await loadPhotos();
+            } catch (e) {
+                console.error('Group approve error:', e);
+                showToast('Failed to approve group', 'error');
+                approveGroupBtn.disabled = false;
             }
         });
 
-        // Checkbox toggle
-        item.querySelector('.staging-checkbox').addEventListener('change', (e) => {
-            if (e.target.checked) {
-                selectedStagingIds.add(photo.id);
-                item.classList.add('staging-selected');
-            } else {
-                selectedStagingIds.delete(photo.id);
-                item.classList.remove('staging-selected');
+        const rejectGroupBtn = document.createElement('button');
+        rejectGroupBtn.className = 'btn btn-danger staging-group-btn';
+        rejectGroupBtn.textContent = `✕ Reject All (${groupPhotos.length})`;
+        rejectGroupBtn.addEventListener('click', async () => {
+            if (!confirm(`Reject and delete all ${groupPhotos.length} photos from ${uploaderName}?`)) return;
+            rejectGroupBtn.disabled = true;
+            rejectGroupBtn.textContent = 'Rejecting...';
+            try {
+                for (const photo of groupPhotos) {
+                    if (photo.url) {
+                        try { await storage.refFromURL(photo.url).delete(); } catch (e) { /* ignore */ }
+                    }
+                    await db.collection('photos').doc(photo.id).delete();
+                }
+                showToast(`${groupPhotos.length} photos from ${uploaderName} rejected`, 'success');
+                await loadStagingPhotos();
+                await loadPhotos();
+            } catch (e) {
+                console.error('Group reject error:', e);
+                showToast('Failed to reject group', 'error');
+                rejectGroupBtn.disabled = false;
             }
-            updateStagingSelection();
         });
 
-        // Approve
-        item.querySelector('.staging-btn-approve').addEventListener('click', () => approvePhoto(photo.id));
-        // Edit
-        item.querySelector('.staging-btn-edit').addEventListener('click', () => openGalleryPhotoEditor(photo));
-        // Reject
-        item.querySelector('.staging-btn-reject').addEventListener('click', () => {
-            confirmDelete('photo', photo.id, photo.url, photo.name);
+        actionsBar.appendChild(selectAllLabel);
+        actionsBar.appendChild(approveGroupBtn);
+        actionsBar.appendChild(rejectGroupBtn);
+
+        // Group grid
+        const grid = document.createElement('div');
+        grid.className = 'gallery-grid staging-grid';
+
+        groupPhotos.forEach((photo) => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            const isSelected = selectedStagingIds.has(photo.id);
+            if (isSelected) item.classList.add('staging-selected');
+            const isVideo = photo.mediaType === 'video' || isVideoUrl(photo.url);
+            item.innerHTML = `
+                ${isVideo ? `
+                    <div class="gallery-video-wrap">
+                        <video src="${photo.url}" preload="metadata" muted playsinline class="gallery-video-thumb"></video>
+                        <div class="gallery-video-play">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="white" stroke="none">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                        </div>
+                        <span class="gallery-video-badge">VIDEO</span>
+                    </div>
+                ` : `
+                    <img src="${photo.url}" alt="${photo.caption || 'Pending photo'}" loading="lazy">
+                `}
+                <div class="gallery-item-overlay">
+                    <p class="gallery-item-name">${escapeHtml(photo.name || 'Unknown')}</p>
+                    ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
+                </div>
+                <label class="staging-checkbox-wrap">
+                    <input type="checkbox" class="staging-checkbox" data-photo-id="${photo.id}" ${isSelected ? 'checked' : ''}>
+                </label>
+                <div class="staging-item-actions">
+                    <button class="staging-btn staging-btn-approve" title="Approve">✓ Approve</button>
+                    <button class="staging-btn staging-btn-edit" title="Edit">✎ Edit</button>
+                    <button class="staging-btn staging-btn-reject" title="Reject">✕ Reject</button>
+                </div>
+            `;
+
+            // Click to open detail
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('.staging-item-actions') &&
+                    !e.target.closest('.staging-checkbox-wrap')) {
+                    openPhotoDetail(photo, 'staging', photo.globalIndex);
+                }
+            });
+
+            // Checkbox toggle
+            item.querySelector('.staging-checkbox').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    selectedStagingIds.add(photo.id);
+                    item.classList.add('staging-selected');
+                } else {
+                    selectedStagingIds.delete(photo.id);
+                    item.classList.remove('staging-selected');
+                }
+                updateStagingSelection();
+                // Update group select-all checkbox
+                selectAllCb.checked = groupIds.every(id => selectedStagingIds.has(id));
+            });
+
+            // Individual actions
+            item.querySelector('.staging-btn-approve').addEventListener('click', () => approvePhoto(photo.id));
+            item.querySelector('.staging-btn-edit').addEventListener('click', () => openGalleryPhotoEditor(photo));
+            item.querySelector('.staging-btn-reject').addEventListener('click', () => {
+                confirmDelete('photo', photo.id, photo.url, photo.name);
+            });
+
+            grid.appendChild(item);
         });
 
-        stagingGrid.appendChild(item);
+        groupDiv.appendChild(header);
+        groupDiv.appendChild(actionsBar);
+        groupDiv.appendChild(grid);
+        stagingGroups.appendChild(groupDiv);
     });
 }
 

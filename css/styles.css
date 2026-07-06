@@ -695,6 +695,78 @@ textarea {
     background: rgba(229, 62, 62, 1);
 }
 
+/* ---------- Staging Groups (per uploader) ---------- */
+.staging-group {
+    border: 1px solid rgba(201, 168, 76, 0.15);
+    border-radius: var(--radius-md);
+    background: rgba(201, 168, 76, 0.02);
+    margin-bottom: var(--space-xl);
+    overflow: hidden;
+}
+
+.staging-group-header {
+    padding: var(--space-md) var(--space-lg);
+    background: rgba(201, 168, 76, 0.08);
+    border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+}
+
+.staging-group-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.staging-group-name {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin: 0;
+}
+
+.staging-group-meta {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+.staging-group-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
+    background: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.staging-group-btn {
+    font-size: 0.78rem;
+    padding: 6px 14px;
+}
+
+.staging-group-select-wrap {
+    font-size: 0.82rem;
+}
+
+.staging-group .staging-grid {
+    padding: var(--space-md);
+}
+
+@media (max-width: 768px) {
+    .staging-group-actions {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+    .staging-group-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
 .gallery-controls {
     display: flex;
     justify-content: center;
