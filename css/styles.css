@@ -345,7 +345,8 @@ textarea {
 }
 
 .nav-dropdown-toggle:hover,
-.nav-dropdown.open .nav-dropdown-toggle {
+.nav-dropdown.open .nav-dropdown-toggle,
+.nav-dropdown-toggle.active {
     color: var(--color-gold);
 }
 
