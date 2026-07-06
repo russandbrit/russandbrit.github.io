@@ -159,6 +159,20 @@ textarea {
     pointer-events: none;
 }
 
+/* CSS-only failsafe: auto-hide preloader after 6s even if JS fails */
+@keyframes preloader-failsafe {
+    0%, 95% { opacity: 1; visibility: visible; }
+    100%    { opacity: 0; visibility: hidden; }
+}
+
+.preloader {
+    animation: preloader-failsafe 6s ease-in forwards;
+}
+
+.preloader.hidden {
+    animation: none;
+}
+
 .preloader-inner {
     text-align: center;
 }

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.2] - 2026-07-06
+
+### Fixed
+- **Blank screen on mobile phones** — The preloader overlay blocked the entire page because the `window.load` event never fired when external CDN resources (Firebase SDK, Google Fonts, JSZip) failed or stalled on slow mobile connections
+- Added 5-second JavaScript failsafe timeout that always dismisses the preloader, even if `load` event never fires
+- Added CSS-only animation fallback that auto-hides the preloader after 6 seconds, even if JavaScript completely fails to load or execute
+- Wrapped Firebase initialization in try/catch so a CDN failure no longer crashes the entire application with `ReferenceError: firebase is not defined`
+- `dismissPreloader()` is now idempotent (safe to call multiple times from both timer and load event)
+
 ## [3.0.1] - 2026-07-06
 
 ### Fixed

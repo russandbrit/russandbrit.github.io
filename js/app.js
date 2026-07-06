@@ -4,22 +4,27 @@
    ============================================================ */
 
 // ==================== FIREBASE INIT ====================
-const firebaseConfig = {
-    apiKey: "AIzaSyACrrUssACgqffdk3a4nRV49o-uTSrkvQc",
-    authDomain: "russandbrit.firebaseapp.com",
-    projectId: "russandbrit",
-    storageBucket: "russandbrit.firebasestorage.app",
-    messagingSenderId: "1005152811656",
-    appId: "1:1005152811656:web:d25b7ae5d4f6d8b5a7bd3d",
-    measurementId: "G-YCTXV9Q4RS"
-};
+let db, storage;
+try {
+    const firebaseConfig = {
+        apiKey: "AIzaSyACrrUssACgqffdk3a4nRV49o-uTSrkvQc",
+        authDomain: "russandbrit.firebaseapp.com",
+        projectId: "russandbrit",
+        storageBucket: "russandbrit.firebasestorage.app",
+        messagingSenderId: "1005152811656",
+        appId: "1:1005152811656:web:d25b7ae5d4f6d8b5a7bd3d",
+        measurementId: "G-YCTXV9Q4RS"
+    };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    storage = firebase.storage();
 
-// Try analytics (may fail on some browsers)
-try { firebase.analytics(); } catch (e) { /* noop */ }
+    // Try analytics (may fail on some browsers)
+    try { firebase.analytics(); } catch (e) { /* noop */ }
+} catch (e) {
+    console.error('Firebase init failed:', e);
+}
 
 // ==================== UTILITY FUNCTIONS ====================
 
@@ -117,12 +122,25 @@ function isVideoUrl(url) {
 
 // ==================== PRELOADER ====================
 
-window.addEventListener('load', () => {
+// Dismiss preloader helper (safe to call multiple times)
+let preloaderDismissed = false;
+function dismissPreloader() {
+    if (preloaderDismissed) return;
+    preloaderDismissed = true;
     const preloader = document.getElementById('preloader');
-    setTimeout(() => {
+    if (preloader) {
         preloader.classList.add('hidden');
-    }, 1200);
+    }
+}
+
+// Normal path: dismiss after page fully loads
+window.addEventListener('load', () => {
+    setTimeout(dismissPreloader, 1200);
 });
+
+// Failsafe: always dismiss after 5 seconds, even if load event never fires
+// (e.g. external CDN fails on mobile, slow connections, etc.)
+setTimeout(dismissPreloader, 5000);
 
 // ==================== NAVIGATION ====================
 
