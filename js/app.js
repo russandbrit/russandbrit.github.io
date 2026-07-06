@@ -2698,7 +2698,8 @@ function renderStaging() {
 
             // Individual actions
             item.querySelector('.staging-btn-approve').addEventListener('click', () => approvePhoto(photo.id));
-            item.querySelector('.staging-btn-edit').addEventListener('click', () => openGalleryPhotoEditor(photo));
+            const editBtnEl = item.querySelector('.staging-btn-edit');
+            if (editBtnEl) editBtnEl.addEventListener('click', () => openGalleryPhotoEditor(photo));
             item.querySelector('.staging-btn-reject').addEventListener('click', () => {
                 confirmDelete('photo', photo.id, photo.url, photo.name);
             });
