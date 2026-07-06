@@ -744,6 +744,16 @@ function openPhotoDetail(photo, source, index) {
         }
     }
 
+    // Admin: show send-to-pending button (for approved photos only)
+    const pendingBtn = document.getElementById('admin-pending-btn');
+    if (pendingBtn) {
+        if (isAdminMode && photo.id !== 'main' && detailSource === 'gallery' && photo.status !== 'pending') {
+            pendingBtn.style.display = 'inline-block';
+        } else {
+            pendingBtn.style.display = 'none';
+        }
+    }
+
     // Admin: show gallery assign dropdown (not for main photo)
     const galleryAssignDiv = document.getElementById('admin-gallery-assign');
     if (galleryAssignDiv) {
@@ -971,6 +981,22 @@ async function togglePhotoType() {
     } catch (e) {
         console.error('Promote error:', e);
         showToast('Failed to change photo type', 'error');
+    }
+}
+
+// Admin: send approved photo back to pending
+async function sendToPending() {
+    if (!currentDetailPhoto || currentDetailPhoto.id === 'main') return;
+    try {
+        await db.collection('photos').doc(currentDetailPhoto.id)
+            .update({ status: 'pending' });
+        showToast('Sent back to Pending Approval', 'success');
+        closePhotoDetail();
+        await loadPhotos();
+        await loadStagingPhotos();
+    } catch (e) {
+        console.error('Send to pending error:', e);
+        showToast('Failed to send to pending', 'error');
     }
 }
 

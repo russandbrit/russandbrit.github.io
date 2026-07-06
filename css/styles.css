@@ -1458,6 +1458,24 @@ body.admin-mode .admin-reset-likes {
     background: rgba(255, 255, 255, 0.05);
 }
 
+.admin-pending-btn {
+    display: inline-block;
+    margin-top: var(--space-xs);
+    background: none;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: #fbbf24;
+    font-size: 0.7rem;
+    padding: 5px 14px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+.admin-pending-btn:hover {
+    background: rgba(251, 191, 36, 0.12);
+    border-color: #fbbf24;
+}
+
 /* Comment form */
 .comment-form {
     padding: var(--space-md) var(--space-lg);
