@@ -1265,7 +1265,9 @@ uploadForm.addEventListener('submit', async (e) => {
 
         } else {
             // === NORMAL MODE: individual uploads with pending approval ===
-            const uploadSession = generateId(); // Unique ID for this upload batch
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, '') || 'Unknown';
+            const safeCaption = caption.replace(/[^a-zA-Z0-9]/g, '').substring(0, 30);
+            const uploadSession = `${safeName}_${safeCaption ? safeCaption + '_' : ''}${generateId()}`;
             for (const file of selectedFiles) {
                 const fileId = generateId();
                 const fileIsVideo = isVideoFile(file);
