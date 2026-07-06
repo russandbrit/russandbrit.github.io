@@ -164,6 +164,7 @@
 
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', () => {
+            if (link.classList.contains('nav-dropdown-toggle')) return;
             navToggle.classList.remove('open');
             navMenu.classList.remove('open');
             const dd = document.getElementById('nav-more-dropdown');

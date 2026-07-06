@@ -179,9 +179,11 @@ const sectionObserver = new IntersectionObserver((entries) => {
 
 sections.forEach(section => sectionObserver.observe(section));
 
-// Close menu on link click (mobile)
+// Close menu on link click (mobile) — skip the dropdown toggle
 navLinks.forEach(link => {
     link.addEventListener('click', () => {
+        // Don't close the menu when clicking the "More" dropdown toggle
+        if (link.classList.contains('nav-dropdown-toggle')) return;
         navToggle.classList.remove('open');
         navMenu.classList.remove('open');
         // Also close the "More" dropdown
