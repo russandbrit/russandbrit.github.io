@@ -1,18 +1,22 @@
 <!-- v3.0.0 -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Russ & Brit — Our Wedding</title>
-    <meta name="description" content="Celebrate the wedding of Russ & Brit. Share your photos and sign our virtual guestbook with messages, audio, or video.">
+    <meta name="description"
+        content="Celebrate the wedding of Russ & Brit. Share your photos and sign our virtual guestbook with messages, audio, or video.">
     <meta name="theme-color" content="#1a1a2e">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@200;300;400;500;600&display=swap"
+        rel="stylesheet">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/styles.css">
@@ -25,6 +29,7 @@
     <!-- JSZip for zip file creation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
+
 <body>
     <!-- ===== PRELOADER ===== -->
     <div id="preloader" class="preloader">
@@ -54,9 +59,10 @@
             <li><a href="help.html" class="nav-link">Help</a></li>
         </ul>
         <button id="admin-toggle" class="admin-toggle" title="Admin mode" aria-label="Toggle admin mode">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
         </button>
     </nav>
@@ -64,7 +70,8 @@
     <!-- ===== HERO SECTION ===== -->
     <section id="hero" class="hero">
         <div class="hero-bg">
-            <img src="photos/main.png" alt="Russ and Brit wedding photo" class="hero-img hero-img-active" id="hero-img-a">
+            <img src="photos/main.png" alt="Russ and Brit wedding photo" class="hero-img hero-img-active"
+                id="hero-img-a">
             <img src="photos/main.png" alt="Wedding photo" class="hero-img" id="hero-img-b">
             <div class="hero-overlay"></div>
         </div>
@@ -93,7 +100,8 @@
     <section class="quote-section" id="quote">
         <div class="quote-ornament">&mdash; &diams; &mdash;</div>
         <blockquote class="quote-text">
-            &ldquo;For wherever you go, I will go, and wherever you live, I will live; your people will be my people, and your God will be my God.&rdquo;
+            &ldquo;For wherever you go, I will go, and wherever you live, I will live; your people will be my people,
+            and your God will be my God.&rdquo;
         </blockquote>
         <cite class="quote-cite">Ruth 1:16&ndash;17</cite>
     </section>
@@ -110,7 +118,8 @@
             <label class="staging-select-all-wrap">
                 <input type="checkbox" id="staging-select-all"> <span>Select All</span>
             </label>
-            <button class="btn btn-primary" id="staging-approve-selected" style="display:none;">✓ Approve Selected</button>
+            <button class="btn btn-primary" id="staging-approve-selected" style="display:none;">✓ Approve
+                Selected</button>
             <button class="btn btn-danger" id="staging-reject-selected" style="display:none;">✕ Reject Selected</button>
             <button class="btn btn-primary" id="staging-approve-all">✓ Approve All</button>
             <span class="staging-count" id="staging-count">0 pending</span>
@@ -131,7 +140,8 @@
         <div class="section-header">
             <span class="section-tag">Memories</span>
             <h2 class="section-title">Our Gallery</h2>
-            <p class="section-desc">Thank you to our amazing family and friends who made our day so special &mdash; we love seeing it through your eyes</p>
+            <p class="section-desc">Thank you to our amazing family and friends who made our day so special &mdash; we
+                love seeing it through your eyes</p>
         </div>
 
         <!-- Gallery Filter -->
@@ -141,7 +151,8 @@
             <button class="filter-btn" data-filter="guest" id="filter-guest">Guest Uploads</button>
             <span class="gallery-tab-divider"></span>
             <div id="custom-gallery-tabs"><!-- Dynamic gallery tabs --></div>
-            <button class="gallery-create-btn" id="gallery-create-btn" title="Create Gallery" style="display:none;">+</button>
+            <button class="gallery-create-btn" id="gallery-create-btn" title="Create Gallery"
+                style="display:none;">+</button>
         </div>
 
         <!-- Gallery Grid -->
@@ -173,17 +184,21 @@
                 <div class="upload-dropzone" id="upload-dropzone">
                     <div class="dropzone-content">
                         <div class="dropzone-icon">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
                         </div>
                         <p class="dropzone-text">Drag &amp; drop your photos &amp; videos here</p>
                         <p class="dropzone-subtext">or click to browse</p>
-                        <p class="dropzone-hint">Photos: JPG, PNG, WEBP (max 10MB) • Videos: MP4, MOV, WEBM (max 100MB)</p>
+                        <p class="dropzone-hint">Photos: JPG, PNG, WEBP (max 10MB) • Videos: MP4, MOV, WEBM (max 100MB)
+                        </p>
                     </div>
-                    <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,video/x-m4v" hidden>
+                    <input type="file" id="photo-input" multiple
+                        accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,video/x-m4v"
+                        hidden>
                 </div>
 
                 <!-- Preview Thumbnails -->
@@ -203,8 +218,13 @@
                             <input type="checkbox" id="make-zip-file">
                             <span class="zip-checkbox-custom"></span>
                             <span class="zip-checkbox-text">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                Make zip file download only
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Make zip file download only!
                             </span>
                         </label>
                     </div>
@@ -248,24 +268,27 @@
                 <!-- Message Type Selector -->
                 <div class="message-type-selector" id="message-type-selector">
                     <button type="button" class="type-btn active" data-type="text" id="type-text">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                         </svg>
                         <span>Text</span>
                     </button>
                     <button type="button" class="type-btn" data-type="audio" id="type-audio">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                            <line x1="12" y1="19" x2="12" y2="23" />
+                            <line x1="8" y1="23" x2="16" y2="23" />
                         </svg>
                         <span>Audio</span>
                     </button>
                     <button type="button" class="type-btn" data-type="video" id="type-video">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="23 7 16 12 23 17 23 7"/>
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7" />
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                         </svg>
                         <span>Video</span>
                     </button>
@@ -275,7 +298,8 @@
                 <div class="message-input" id="input-text">
                     <div class="form-group">
                         <label for="guest-message">Your Message</label>
-                        <textarea id="guest-message" rows="4" placeholder="Share your love and well-wishes..."></textarea>
+                        <textarea id="guest-message" rows="4"
+                            placeholder="Share your love and well-wishes..."></textarea>
                     </div>
                 </div>
 
@@ -290,14 +314,16 @@
                                 <div class="recorder-dot"></div>
                                 <span>Record</span>
                             </button>
-                            <button type="button" class="recorder-btn recorder-stop" id="audio-stop-btn" title="Stop recording" style="display:none;">
+                            <button type="button" class="recorder-btn recorder-stop" id="audio-stop-btn"
+                                title="Stop recording" style="display:none;">
                                 <div class="recorder-square"></div>
                                 <span>Stop</span>
                             </button>
                         </div>
                         <div class="recorder-playback" id="audio-playback" style="display:none;">
                             <audio id="audio-preview" controls></audio>
-                            <button type="button" class="btn-discard" id="audio-discard">Discard &amp; Re-record</button>
+                            <button type="button" class="btn-discard" id="audio-discard">Discard &amp;
+                                Re-record</button>
                         </div>
                         <p class="recorder-hint">Max 60 seconds</p>
                     </div>
@@ -315,13 +341,15 @@
                                 <div class="recorder-dot"></div>
                                 <span>Record</span>
                             </button>
-                            <button type="button" class="recorder-btn recorder-stop" id="video-stop-btn" title="Stop recording" style="display:none;">
+                            <button type="button" class="recorder-btn recorder-stop" id="video-stop-btn"
+                                title="Stop recording" style="display:none;">
                                 <div class="recorder-square"></div>
                                 <span>Stop</span>
                             </button>
                         </div>
                         <div class="recorder-playback" id="video-playback-controls" style="display:none;">
-                            <button type="button" class="btn-discard" id="video-discard">Discard &amp; Re-record</button>
+                            <button type="button" class="btn-discard" id="video-discard">Discard &amp;
+                                Re-record</button>
                         </div>
                         <p class="recorder-hint">Max 30 seconds</p>
                         <p class="recorder-hint" id="video-upload-option">
@@ -383,8 +411,10 @@
     <div id="photo-editor" class="photo-editor" style="display:none;">
         <div class="editor-header">
             <button class="editor-cancel" id="editor-cancel">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
                 Cancel
             </button>
@@ -411,13 +441,17 @@
                     <span class="editor-control-label">Rotate</span>
                     <div class="editor-rotate-btns">
                         <button type="button" class="editor-icon-btn" id="editor-rotate-left" title="Rotate left">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10" />
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
                             </svg>
                         </button>
                         <button type="button" class="editor-icon-btn" id="editor-rotate-right" title="Rotate right">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10" />
+                                <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" />
                             </svg>
                         </button>
                     </div>
@@ -427,15 +461,20 @@
                 <div class="editor-control-group">
                     <span class="editor-control-label">Crop</span>
                     <div class="editor-crop-btns">
-                        <button type="button" class="editor-icon-btn editor-crop-btn" id="editor-crop-start" title="Crop">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/>
+                        <button type="button" class="editor-icon-btn editor-crop-btn" id="editor-crop-start"
+                            title="Crop">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 2v14a2 2 0 0 0 2 2h14" />
+                                <path d="M18 22V8a2 2 0 0 0-2-2H2" />
                             </svg>
                         </button>
                     </div>
                     <div id="crop-actions" class="crop-actions" style="display:none;">
-                        <button type="button" class="btn btn-primary crop-action-btn" id="crop-confirm">Apply Crop</button>
-                        <button type="button" class="btn btn-outline crop-action-btn" id="crop-cancel-btn">Cancel</button>
+                        <button type="button" class="btn btn-primary crop-action-btn" id="crop-confirm">Apply
+                            Crop</button>
+                        <button type="button" class="btn btn-outline crop-action-btn"
+                            id="crop-cancel-btn">Cancel</button>
                     </div>
                 </div>
 
@@ -488,22 +527,28 @@
     <!-- ===== PHOTO DETAIL MODAL ===== -->
     <div id="photo-detail-modal" class="photo-detail-modal" style="display:none;">
         <button class="photo-detail-close" id="photo-detail-close">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
         </button>
-        <button class="photo-detail-nav photo-detail-prev" id="photo-detail-prev" aria-label="Previous photo">&#8249;</button>
-        <button class="photo-detail-nav photo-detail-next" id="photo-detail-next" aria-label="Next photo">&#8250;</button>
+        <button class="photo-detail-nav photo-detail-prev" id="photo-detail-prev"
+            aria-label="Previous photo">&#8249;</button>
+        <button class="photo-detail-nav photo-detail-next" id="photo-detail-next"
+            aria-label="Next photo">&#8250;</button>
         <div class="photo-detail-content">
             <div class="photo-detail-image-wrap">
                 <img id="photo-detail-img" src="" alt="">
-                <video id="photo-detail-video" controls playsinline style="display:none;" class="photo-detail-video"></video>
+                <video id="photo-detail-video" controls playsinline style="display:none;"
+                    class="photo-detail-video"></video>
             </div>
             <div class="photo-detail-sidebar">
                 <div class="photo-detail-header">
                     <h3 class="photo-detail-name" id="photo-detail-name"></h3>
                     <p class="photo-detail-caption" id="photo-detail-caption"></p>
-                    <button class="admin-promote-btn" id="admin-promote-btn" onclick="togglePhotoType()" style="display:none;">★ Promote to Official</button>
+                    <button class="admin-promote-btn" id="admin-promote-btn" onclick="togglePhotoType()"
+                        style="display:none;">★ Promote to Official</button>
                     <div class="admin-gallery-assign" id="admin-gallery-assign" style="display:none;">
                         <label class="gallery-assign-label">Gallery:</label>
                         <select id="gallery-assign-select" class="gallery-assign-select">
@@ -519,12 +564,15 @@
                 </div>
                 <div class="photo-detail-like-row">
                     <button class="photo-like-btn" id="photo-detail-like-btn">
-                        <svg class="heart-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        <svg class="heart-icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                         </svg>
                         <span id="photo-detail-like-count">0</span>
                     </button>
-                    <button class="admin-reset-likes" id="admin-reset-likes" onclick="resetPhotoLikes()" style="display:none;">Reset Likes</button>
+                    <button class="admin-reset-likes" id="admin-reset-likes" onclick="resetPhotoLikes()"
+                        style="display:none;">Reset Likes</button>
                 </div>
                 <div class="photo-detail-comments" id="photo-detail-comments">
                     <h4 class="comments-title">Comments</h4>
@@ -548,7 +596,8 @@
         <div class="modal-card">
             <h3 class="modal-title" id="gallery-modal-title">Create Gallery</h3>
             <div class="form-group">
-                <input type="text" id="gallery-name-input" placeholder="Gallery name (e.g. Ceremony, Reception)" autocomplete="off">
+                <input type="text" id="gallery-name-input" placeholder="Gallery name (e.g. Ceremony, Reception)"
+                    autocomplete="off">
             </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" id="gallery-modal-cancel">Cancel</button>
@@ -592,7 +641,8 @@
     <div id="confirm-modal" class="modal-overlay" style="display:none;">
         <div class="modal-card">
             <h3 class="modal-title">Confirm Delete</h3>
-            <p class="modal-desc" id="confirm-modal-message">Are you sure you want to delete this item? This cannot be undone.</p>
+            <p class="modal-desc" id="confirm-modal-message">Are you sure you want to delete this item? This cannot be
+                undone.</p>
             <div class="modal-actions">
                 <button class="btn btn-outline modal-btn" id="confirm-cancel">Cancel</button>
                 <button class="btn btn-primary modal-btn btn-danger" id="confirm-delete">Delete</button>
@@ -606,4 +656,5 @@
     <!-- Application JS -->
     <script src="js/app.js"></script>
 </body>
+
 </html>
