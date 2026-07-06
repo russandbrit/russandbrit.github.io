@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Video Upload Support** — Upload section now accepts MP4, MOV, WEBM video files (up to 100MB) alongside photos
 - **Video Gallery Playback** — Videos display in the gallery with play button overlays and "VIDEO" badges; click to play in detail modal or lightbox
-- **Zip File Creation** — "Make zip file" checkbox in upload form bundles all uploaded files into a downloadable .zip
+- **Zip File Creation** — "Make zip file download only" checkbox in upload form; when checked, files are bundled into a .zip and uploaded to the Downloads page **without** adding individual photos/videos to pending approval
 - **Downloads Page** (`downloads.html`) — Public page listing all zip files sorted by filename; anyone can view and download
 - Zip filename format: `MMDDYYHHmmss{UploaderName}.zip`
 - JSZip library (CDN) for client-side zip creation
@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upload section title changed to "Share Your Photos & Videos"
 - File validation updated: images max 10MB, videos max 100MB
 - Firestore photo documents now include `mediaType` field (`'image'` or `'video'`)
+- Downloads page heading: "Photo & Video Zips"
 
 ## [2.9.0] - 2026-07-05
 
