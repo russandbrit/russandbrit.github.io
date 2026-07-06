@@ -1265,6 +1265,7 @@ uploadForm.addEventListener('submit', async (e) => {
 
         } else {
             // === NORMAL MODE: individual uploads with pending approval ===
+            const uploadSession = generateId(); // Unique ID for this upload batch
             for (const file of selectedFiles) {
                 const fileId = generateId();
                 const fileIsVideo = isVideoFile(file);
@@ -1301,6 +1302,7 @@ uploadForm.addEventListener('submit', async (e) => {
                     type: 'guest',
                     mediaType: fileIsVideo ? 'video' : 'image',
                     status: 'pending',
+                    uploadSession: uploadSession,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -2483,21 +2485,27 @@ function renderStaging() {
 
     if (stagingPhotos.length === 0) return;
 
-    // Group photos by uploader name
+    // Group photos by upload session (each upload batch gets its own group)
     const groups = {};
     stagingPhotos.forEach((photo, globalIndex) => {
-        const name = photo.name || 'Unknown';
-        if (!groups[name]) {
-            groups[name] = [];
+        // Use uploadSession if available, otherwise fall back to name-based key
+        const key = photo.uploadSession || `legacy_${photo.name || 'Unknown'}`;
+        if (!groups[key]) {
+            groups[key] = [];
         }
-        groups[name].push({ ...photo, globalIndex });
+        groups[key].push({ ...photo, globalIndex });
     });
 
-    // Sort group names alphabetically
-    const sortedNames = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+    // Sort groups by earliest timestamp (newest first)
+    const sortedKeys = Object.keys(groups).sort((a, b) => {
+        const aTime = groups[a].reduce((min, p) => p.timestamp < min ? p.timestamp : min, groups[a][0].timestamp);
+        const bTime = groups[b].reduce((min, p) => p.timestamp < min ? p.timestamp : min, groups[b][0].timestamp);
+        return bTime - aTime;
+    });
 
-    sortedNames.forEach(uploaderName => {
-        const groupPhotos = groups[uploaderName];
+    sortedKeys.forEach(groupKey => {
+        const groupPhotos = groups[groupKey];
+        const uploaderName = groupPhotos[0].name || 'Unknown';
         const groupIds = groupPhotos.map(p => p.id);
 
         // Group container — collapsed by default
