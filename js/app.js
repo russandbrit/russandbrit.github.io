@@ -2511,11 +2511,13 @@ function renderStaging() {
         // Group header (clickable to toggle)
         const header = document.createElement('div');
         header.className = 'staging-group-header';
+        const groupCaption = groupPhotos.find(p => p.caption)?.caption || '';
         header.innerHTML = `
             <div class="staging-group-info">
                 <h3 class="staging-group-name">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     ${escapeHtml(uploaderName)}
+                    ${groupCaption ? `<span class="staging-group-caption">— ${escapeHtml(groupCaption)}</span>` : ''}
                 </h3>
                 <span class="staging-group-meta">${groupPhotos.length} file${groupPhotos.length !== 1 ? 's' : ''} · ${timeStr}</span>
             </div>

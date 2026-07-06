@@ -769,6 +769,13 @@ textarea {
     font-weight: 400;
 }
 
+.staging-group-caption {
+    font-weight: 400;
+    font-style: italic;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
 .staging-group-actions {
     display: flex;
     align-items: center;
