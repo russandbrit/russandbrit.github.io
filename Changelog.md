@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Help page (`help.html`) updated with all v3.0.0 features: video uploads, zip downloads, Downloads page, admin downloads management, grouped approval, and collapsible sections
 - Gallery description text updated
 - Edit button (✎) hidden for videos in gallery grid, staging grid, and detail modal since videos cannot be edited with the photo editor
+- Wedding date (July 4th, 2026) added to hero section with gold uppercase styling and fade-in animation
 
 ## [2.9.0] - 2026-07-05
 
