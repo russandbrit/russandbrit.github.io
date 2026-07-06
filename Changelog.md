@@ -12,13 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Video Gallery Playback** — Videos display in the gallery with play button overlays and "VIDEO" badges; click to play in detail modal or lightbox
 - **Zip File Creation** — "Make zip file download only" checkbox in upload form; when checked, files are bundled into a .zip and uploaded to the Downloads page **without** adding individual photos/videos to pending approval
 - **Downloads Page** (`downloads.html`) — Public page listing all zip files sorted by filename; anyone can view and download
-- Zip filename format: `MMDDYYHHmmss{UploaderName}.zip`
+- **Admin Delete on Downloads** — Admin can delete zip files from the Downloads page (removes both Firestore doc and Storage file) with confirmation modal
+- Admin toggle, passcode modal, and session persistence on Downloads page
 - JSZip library (CDN) for client-side zip creation
 - Real-time listener on downloads page for live updates
 - Video cleanup on modal close (stops playback when closing detail/lightbox)
 - Downloads link in navigation bar
 
 ### Changed
+- Zip filename format: `UploaderName-MMDDYY-Random.zip` (e.g. `Dad-070526-42.zip`)
 - Upload dropzone now accepts both image and video file types
 - Gallery title changed to "Our Gallery" (from "Our Photo Gallery") to include videos
 - Upload section title changed to "Share Your Photos & Videos"
