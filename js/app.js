@@ -1,6 +1,6 @@
 /* ============================================================
    RUSS & BRIT — WEDDING WEBSITE
-   Firebase-powered photo gallery & virtual guestbook
+   Firebase-powered photo/video gallery & virtual guestbook
    ============================================================ */
 
 // ==================== FIREBASE INIT ====================
@@ -96,6 +96,23 @@ function convertToJpg(file, quality = 0.85) {
         };
         img.src = URL.createObjectURL(file);
     });
+}
+
+/**
+ * Check if a file is a video type
+ */
+function isVideoFile(file) {
+    return file.type.startsWith('video/');
+}
+
+/**
+ * Check if a URL/string represents a video file
+ */
+function isVideoUrl(url) {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    return lower.includes('.mp4') || lower.includes('.mov') || lower.includes('.webm') ||
+           lower.includes('.m4v') || lower.includes('video%2F') || lower.includes('video/');
 }
 
 // ==================== PRELOADER ====================
@@ -344,8 +361,21 @@ function renderGallery() {
         const commentCount = photo.commentCount || 0;
         const isLiked = localStorage.getItem(`liked_${photo.id}`) === '1';
         const isGuest = photo.type === 'guest';
+        const isVideo = photo.mediaType === 'video' || isVideoUrl(photo.url);
         item.innerHTML = `
-            <img src="${photo.url}" alt="${photo.caption || 'Wedding photo'}" loading="lazy">
+            ${isVideo ? `
+                <div class="gallery-video-wrap">
+                    <video src="${photo.url}" preload="metadata" muted playsinline class="gallery-video-thumb"></video>
+                    <div class="gallery-video-play">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="white" stroke="none">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                    </div>
+                    <span class="gallery-video-badge">VIDEO</span>
+                </div>
+            ` : `
+                <img src="${photo.url}" alt="${photo.caption || 'Wedding photo'}" loading="lazy">
+            `}
             <div class="gallery-item-overlay">
                 <p class="gallery-item-name">${escapeHtml(photo.name)}</p>
                 ${photo.caption ? `<p class="gallery-item-caption">${escapeHtml(photo.caption)}</p>` : ''}
@@ -674,7 +704,23 @@ function openPhotoDetail(photo, source, index) {
     if (source !== undefined) detailSource = source;
     if (index !== undefined) detailIndex = index;
     currentDetailPhoto = photo;
-    document.getElementById('photo-detail-img').src = photo.url;
+
+    const isVideo = photo.mediaType === 'video' || isVideoUrl(photo.url);
+    const imgEl = document.getElementById('photo-detail-img');
+    const videoEl = document.getElementById('photo-detail-video');
+
+    if (isVideo) {
+        imgEl.style.display = 'none';
+        videoEl.style.display = 'block';
+        videoEl.src = photo.url;
+        videoEl.load();
+    } else {
+        videoEl.style.display = 'none';
+        videoEl.src = '';
+        imgEl.style.display = 'block';
+        imgEl.src = photo.url;
+    }
+
     document.getElementById('photo-detail-name').textContent = photo.name || 'Unknown';
     document.getElementById('photo-detail-caption').textContent = photo.caption || '';
 
@@ -735,6 +781,9 @@ function closePhotoDetail() {
     photoDetailModal.style.display = 'none';
     document.body.style.overflow = '';
     currentDetailPhoto = null;
+    // Stop video playback
+    const videoEl = document.getElementById('photo-detail-video');
+    if (videoEl) { videoEl.pause(); videoEl.src = ''; }
 }
 
 document.getElementById('photo-detail-close').addEventListener('click', closePhotoDetail);
@@ -936,12 +985,30 @@ function openLightbox(index) {
 function closeLightbox() {
     lightbox.style.display = 'none';
     document.body.style.overflow = '';
+    // Stop video playback
+    const videoEl = document.getElementById('lightbox-video');
+    if (videoEl) { videoEl.pause(); videoEl.src = ''; }
 }
 
 function updateLightbox() {
     const photo = filteredPhotos[lightboxIndex];
     if (!photo) return;
-    document.getElementById('lightbox-img').src = photo.url;
+    const isVideo = photo.mediaType === 'video' || isVideoUrl(photo.url);
+    const imgEl = document.getElementById('lightbox-img');
+    const videoEl = document.getElementById('lightbox-video');
+
+    if (isVideo) {
+        imgEl.style.display = 'none';
+        videoEl.style.display = 'block';
+        videoEl.src = photo.url;
+        videoEl.load();
+    } else {
+        videoEl.style.display = 'none';
+        videoEl.src = '';
+        imgEl.style.display = 'block';
+        imgEl.src = photo.url;
+    }
+
     document.getElementById('lightbox-caption').textContent = photo.caption || '';
     document.getElementById('lightbox-credit').textContent = `Photo by ${photo.name}`;
 }
@@ -1014,20 +1081,29 @@ photoInput.addEventListener('change', () => {
 });
 
 function handleFiles(fileList) {
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const validVideoTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v'];
+    const maxImageSize = 10 * 1024 * 1024; // 10MB
+    const maxVideoSize = 100 * 1024 * 1024; // 100MB
 
     Array.from(fileList).forEach(file => {
-        if (!validTypes.includes(file.type)) {
-            showToast(`${file.name} is not a supported image format`, 'error');
+        const isImage = validImageTypes.includes(file.type);
+        const isVideo = validVideoTypes.includes(file.type);
+
+        if (!isImage && !isVideo) {
+            showToast(`${file.name} is not a supported format`, 'error');
             return;
         }
-        if (file.size > maxSize) {
+        if (isImage && file.size > maxImageSize) {
             showToast(`${file.name} exceeds 10MB limit`, 'error');
             return;
         }
+        if (isVideo && file.size > maxVideoSize) {
+            showToast(`${file.name} exceeds 100MB limit`, 'error');
+            return;
+        }
         if (selectedFiles.length >= 150) {
-            showToast('Maximum 150 photos at a time', 'warning');
+            showToast('Maximum 150 files at a time', 'warning');
             return;
         }
         selectedFiles.push(file);
@@ -1042,9 +1118,35 @@ function renderPreviews() {
     selectedFiles.forEach((file, index) => {
         const item = document.createElement('div');
         item.className = 'upload-preview-item';
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        img.alt = file.name;
+        const isVideo = isVideoFile(file);
+
+        if (isVideo) {
+            const vid = document.createElement('video');
+            vid.src = URL.createObjectURL(file);
+            vid.muted = true;
+            vid.preload = 'metadata';
+            vid.className = 'upload-preview-video';
+            const badge = document.createElement('span');
+            badge.className = 'upload-preview-video-badge';
+            badge.textContent = '▶ VIDEO';
+            item.appendChild(vid);
+            item.appendChild(badge);
+        } else {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = file.name;
+            item.appendChild(img);
+            // Edit button (only for images)
+            const editBtn = document.createElement('button');
+            editBtn.className = 'upload-preview-edit';
+            editBtn.innerHTML = '✎';
+            editBtn.title = 'Edit photo';
+            editBtn.addEventListener('click', () => {
+                openPhotoEditor(index);
+            });
+            item.appendChild(editBtn);
+        }
+
         const removeBtn = document.createElement('button');
         removeBtn.className = 'upload-preview-remove';
         removeBtn.innerHTML = '&times;';
@@ -1053,17 +1155,7 @@ function renderPreviews() {
             renderPreviews();
             uploadSubmit.disabled = selectedFiles.length === 0;
         });
-        // Edit button
-        const editBtn = document.createElement('button');
-        editBtn.className = 'upload-preview-edit';
-        editBtn.innerHTML = '✎';
-        editBtn.title = 'Edit photo';
-        editBtn.addEventListener('click', () => {
-            openPhotoEditor(index);
-        });
-        item.appendChild(img);
         item.appendChild(removeBtn);
-        item.appendChild(editBtn);
         uploadPreviews.appendChild(item);
     });
 }
@@ -1074,6 +1166,7 @@ uploadForm.addEventListener('submit', async (e) => {
 
     const name = document.getElementById('uploader-name').value.trim();
     const caption = document.getElementById('photo-caption').value.trim();
+    const makeZip = document.getElementById('make-zip-file').checked;
 
     if (!name) {
         showToast('Please enter your name', 'error');
@@ -1081,7 +1174,7 @@ uploadForm.addEventListener('submit', async (e) => {
     }
 
     if (selectedFiles.length === 0) {
-        showToast('Please select photos to upload', 'error');
+        showToast('Please select photos or videos to upload', 'error');
         return;
     }
 
@@ -1093,20 +1186,36 @@ uploadForm.addEventListener('submit', async (e) => {
 
     let uploaded = 0;
     const total = selectedFiles.length;
+    const uploadedBlobs = []; // for zip creation
+    const uploadedNames = []; // original filenames for zip
 
     try {
         for (const file of selectedFiles) {
             const fileId = generateId();
+            const fileIsVideo = isVideoFile(file);
 
-            // Convert image to JPG before upload
-            progressText.textContent = `Converting ${uploaded + 1} of ${total} to JPG...`;
-            const jpgBlob = await convertToJpg(file);
+            let uploadBlob;
+            let storagePath;
+            let contentType;
 
-            const storageRef = storage.ref(`photos/${fileId}.jpg`);
+            if (fileIsVideo) {
+                // Upload video directly (no conversion)
+                const ext = file.name.split('.').pop().toLowerCase() || 'mp4';
+                storagePath = `photos/${fileId}.${ext}`;
+                contentType = file.type;
+                uploadBlob = file;
+                progressText.textContent = `Uploading video ${uploaded + 1} of ${total}...`;
+            } else {
+                // Convert image to JPG before upload
+                progressText.textContent = `Converting ${uploaded + 1} of ${total} to JPG...`;
+                uploadBlob = await convertToJpg(file);
+                storagePath = `photos/${fileId}.jpg`;
+                contentType = 'image/jpeg';
+            }
 
-            // Upload converted JPG to Firebase Storage
-            const uploadTask = await storageRef.put(jpgBlob, {
-                contentType: 'image/jpeg'
+            const storageRef = storage.ref(storagePath);
+            const uploadTask = await storageRef.put(uploadBlob, {
+                contentType: contentType
             });
             const url = await uploadTask.ref.getDownloadURL();
 
@@ -1117,9 +1226,19 @@ uploadForm.addEventListener('submit', async (e) => {
                 name: name,
                 caption: caption,
                 type: 'guest',
+                mediaType: fileIsVideo ? 'video' : 'image',
                 status: 'pending',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
+
+            // Store for zip creation
+            if (makeZip) {
+                uploadedBlobs.push(uploadBlob);
+                const origExt = fileIsVideo
+                    ? (file.name.split('.').pop().toLowerCase() || 'mp4')
+                    : 'jpg';
+                uploadedNames.push(`${fileId}.${origExt}`);
+            }
 
             uploaded++;
             const pct = Math.round((uploaded / total) * 100);
@@ -1127,13 +1246,66 @@ uploadForm.addEventListener('submit', async (e) => {
             progressText.textContent = `Uploading ${uploaded} of ${total}...`;
         }
 
-        showToast(`${uploaded} photo${uploaded > 1 ? 's' : ''} uploaded! Pending admin approval.`, 'success');
+        // Create zip file if requested
+        if (makeZip && uploadedBlobs.length > 0) {
+            progressText.textContent = 'Creating zip file...';
+            progressFill.style.width = '100%';
+
+            try {
+                const zip = new JSZip();
+                for (let i = 0; i < uploadedBlobs.length; i++) {
+                    zip.file(uploadedNames[i], uploadedBlobs[i]);
+                }
+
+                const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
+                    progressText.textContent = `Compressing zip: ${Math.round(meta.percent)}%...`;
+                });
+
+                // Generate zip filename: MMDDYYHHmmss{name}.zip
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const dateStr = pad(now.getMonth() + 1) +
+                               pad(now.getDate()) +
+                               pad(now.getFullYear() % 100) +
+                               pad(now.getHours()) +
+                               pad(now.getMinutes()) +
+                               pad(now.getSeconds());
+                const safeName = name.replace(/[^a-zA-Z0-9]/g, '');
+                const zipFilename = `${dateStr}{${safeName}}.zip`;
+
+                // Upload zip to Firebase Storage under downloads/
+                const zipRef = storage.ref(`downloads/${zipFilename}`);
+                progressText.textContent = 'Uploading zip file...';
+                const zipUpload = await zipRef.put(zipBlob, {
+                    contentType: 'application/zip'
+                });
+                const zipUrl = await zipUpload.ref.getDownloadURL();
+
+                // Save zip metadata to Firestore
+                await db.collection('downloads').add({
+                    filename: zipFilename,
+                    url: zipUrl,
+                    uploaderName: name,
+                    fileCount: uploadedBlobs.length,
+                    size: zipBlob.size,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showToast(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded + zip created! 📦`, 'success');
+            } catch (zipError) {
+                console.error('Zip creation error:', zipError);
+                showToast(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded but zip creation failed.`, 'warning');
+            }
+        } else {
+            showToast(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded! Pending admin approval.`, 'success');
+        }
 
         // Reset form
         selectedFiles = [];
         renderPreviews();
         document.getElementById('uploader-name').value = '';
         document.getElementById('photo-caption').value = '';
+        document.getElementById('make-zip-file').checked = false;
         photoInput.value = '';
 
         // Reload gallery

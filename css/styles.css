@@ -2830,3 +2830,320 @@ body.admin-mode .nav {
 .staging-actions {
     align-items: center;
 }
+
+/* ==================== VIDEO IN GALLERY ==================== */
+
+.gallery-video-wrap {
+    position: relative;
+    width: 100%;
+    background: #080810;
+}
+
+.gallery-video-thumb {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.gallery-item:hover .gallery-video-thumb {
+    transform: scale(1.08);
+}
+
+.gallery-video-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: all var(--duration-med) var(--ease-out);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.gallery-item:hover .gallery-video-play {
+    background: rgba(201, 168, 76, 0.85);
+    border-color: var(--color-gold);
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 0 30px rgba(201, 168, 76, 0.3);
+}
+
+.gallery-video-play svg {
+    margin-left: 3px;
+}
+
+.gallery-video-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    background: rgba(201, 168, 76, 0.9);
+    color: var(--color-bg);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(4px);
+}
+
+/* Video in Photo Detail Modal */
+.photo-detail-video {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    background: #080810;
+}
+
+/* Video in Lightbox */
+.lightbox-video {
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: var(--radius-md);
+    background: #000;
+}
+
+/* ==================== ZIP CHECKBOX ==================== */
+
+.upload-zip-option {
+    margin-top: -0.5rem;
+}
+
+.zip-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+    user-select: none;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-card);
+    transition: all var(--duration-fast) ease;
+}
+
+.zip-checkbox-label:hover {
+    border-color: var(--color-gold);
+    background: var(--color-gold-glow);
+}
+
+.zip-checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.zip-checkbox-custom {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border: 2px solid var(--color-text-faint);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--duration-fast) ease;
+    position: relative;
+}
+
+.zip-checkbox-custom::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 10px;
+    border: solid transparent;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.2s var(--ease-spring);
+    margin-top: -2px;
+}
+
+.zip-checkbox-label input:checked + .zip-checkbox-custom {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+}
+
+.zip-checkbox-label input:checked + .zip-checkbox-custom::after {
+    border-color: var(--color-bg);
+    transform: rotate(45deg) scale(1);
+}
+
+.zip-checkbox-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+.zip-checkbox-text svg {
+    color: var(--color-gold);
+    flex-shrink: 0;
+}
+
+.zip-checkbox-label input:checked ~ .zip-checkbox-text {
+    color: var(--color-gold);
+}
+
+/* ==================== VIDEO PREVIEW IN UPLOAD ==================== */
+
+.upload-preview-item .upload-preview-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-preview-video-badge {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    background: rgba(201, 168, 76, 0.9);
+    color: var(--color-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+}
+
+/* ==================== DOWNLOADS PAGE ==================== */
+
+.downloads-page {
+    padding: calc(var(--nav-height) + var(--space-3xl)) var(--space-xl) var(--space-3xl);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    min-height: 80vh;
+}
+
+.downloads-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.downloads-loading {
+    text-align: center;
+    padding: var(--space-3xl);
+    color: var(--color-text-muted);
+}
+
+.downloads-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    text-align: center;
+    padding: var(--space-3xl);
+    color: var(--color-text-muted);
+}
+
+.downloads-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    animation: fade-up 0.6s var(--ease-out);
+}
+
+.download-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all var(--duration-med) ease;
+}
+
+.download-card:hover {
+    border-color: var(--color-gold);
+    background: rgba(201, 168, 76, 0.04);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-gold);
+}
+
+.download-card-icon {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-gold-dark), var(--color-gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-bg);
+}
+
+.download-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.download-card-name {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: var(--space-xs);
+    word-break: break-all;
+}
+
+.download-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+}
+
+.download-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+.download-meta-item svg {
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.download-card-btn {
+    white-space: nowrap;
+    padding: 0.7rem 1.6rem;
+    font-size: 0.8rem;
+    gap: 6px;
+    text-decoration: none;
+}
+
+/* Downloads responsive */
+@media (max-width: 768px) {
+    .download-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-md);
+    }
+
+    .download-card-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+    }
+
+    .download-card-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .download-card-meta {
+        flex-direction: column;
+        gap: var(--space-xs);
+    }
+}

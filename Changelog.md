@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-07-05
+
+### Added
+- **Video Upload Support** — Upload section now accepts MP4, MOV, WEBM video files (up to 100MB) alongside photos
+- **Video Gallery Playback** — Videos display in the gallery with play button overlays and "VIDEO" badges; click to play in detail modal or lightbox
+- **Zip File Creation** — "Make zip file" checkbox in upload form bundles all uploaded files into a downloadable .zip
+- **Downloads Page** (`downloads.html`) — Public page listing all zip files sorted by filename; anyone can view and download
+- Zip filename format: `MMDDYYHHmmss{UploaderName}.zip`
+- JSZip library (CDN) for client-side zip creation
+- Real-time listener on downloads page for live updates
+- Video cleanup on modal close (stops playback when closing detail/lightbox)
+- Downloads link in navigation bar
+
+### Changed
+- Upload dropzone now accepts both image and video file types
+- Gallery title changed to "Our Gallery" (from "Our Photo Gallery") to include videos
+- Upload section title changed to "Share Your Photos & Videos"
+- File validation updated: images max 10MB, videos max 100MB
+- Firestore photo documents now include `mediaType` field (`'image'` or `'video'`)
+
 ## [2.9.0] - 2026-07-05
 
 ### Added

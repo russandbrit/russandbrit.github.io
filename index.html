@@ -1,4 +1,4 @@
-<!-- v2.9.0 -->
+<!-- v3.0.0 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,6 +22,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics-compat.js"></script>
+    <!-- JSZip for zip file creation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
     <!-- ===== PRELOADER ===== -->
@@ -48,6 +50,7 @@
             <li><a href="#gallery" class="nav-link" data-section="gallery">Photos</a></li>
             <li><a href="#upload" class="nav-link" data-section="upload">Upload</a></li>
             <li><a href="#guestbook" class="nav-link" data-section="guestbook">Guestbook</a></li>
+            <li><a href="downloads.html" class="nav-link">Downloads</a></li>
             <li><a href="help.html" class="nav-link">Help</a></li>
         </ul>
         <button id="admin-toggle" class="admin-toggle" title="Admin mode" aria-label="Toggle admin mode">
@@ -127,7 +130,7 @@
     <section id="gallery" class="section gallery-section">
         <div class="section-header">
             <span class="section-tag">Memories</span>
-            <h2 class="section-title">Our Photo Gallery</h2>
+            <h2 class="section-title">Our Gallery</h2>
             <p class="section-desc">Thank you to our amazing family and friends who made our day so special &mdash; we love seeing it through your eyes</p>
         </div>
 
@@ -161,7 +164,7 @@
     <section id="upload" class="section upload-section">
         <div class="section-header">
             <span class="section-tag">Share</span>
-            <h2 class="section-title">Share Your Photos</h2>
+            <h2 class="section-title">Share Your Photos &amp; Videos</h2>
             <p class="section-desc">Upload your favorite moments from the celebration</p>
         </div>
 
@@ -176,11 +179,11 @@
                                 <line x1="12" y1="3" x2="12" y2="15"/>
                             </svg>
                         </div>
-                        <p class="dropzone-text">Drag &amp; drop your photos here</p>
+                        <p class="dropzone-text">Drag &amp; drop your photos &amp; videos here</p>
                         <p class="dropzone-subtext">or click to browse</p>
-                        <p class="dropzone-hint">Supports JPG, PNG, WEBP • Max 10MB each</p>
+                        <p class="dropzone-hint">Photos: JPG, PNG, WEBP (max 10MB) • Videos: MP4, MOV, WEBM (max 100MB)</p>
                     </div>
-                    <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp" hidden>
+                    <input type="file" id="photo-input" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,video/x-m4v" hidden>
                 </div>
 
                 <!-- Preview Thumbnails -->
@@ -195,10 +198,20 @@
                         <label for="photo-caption">Caption <span class="optional">(optional)</span></label>
                         <input type="text" id="photo-caption" placeholder="A few words about this moment...">
                     </div>
+                    <div class="form-group upload-zip-option">
+                        <label class="zip-checkbox-label" for="make-zip-file">
+                            <input type="checkbox" id="make-zip-file">
+                            <span class="zip-checkbox-custom"></span>
+                            <span class="zip-checkbox-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Make zip file for download
+                            </span>
+                        </label>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-upload" id="upload-submit" disabled>
-                    <span class="btn-text">Upload Photos</span>
+                    <span class="btn-text">Upload Files</span>
                     <span class="btn-loader" style="display:none;">
                         <div class="spinner-small"></div>
                         Uploading...
@@ -358,6 +371,7 @@
         <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next photo">&#8250;</button>
         <div class="lightbox-content">
             <img id="lightbox-img" src="" alt="Full size photo">
+            <video id="lightbox-video" controls playsinline style="display:none;" class="lightbox-video"></video>
             <div class="lightbox-info" id="lightbox-info">
                 <p class="lightbox-caption" id="lightbox-caption"></p>
                 <p class="lightbox-credit" id="lightbox-credit"></p>
@@ -483,6 +497,7 @@
         <div class="photo-detail-content">
             <div class="photo-detail-image-wrap">
                 <img id="photo-detail-img" src="" alt="">
+                <video id="photo-detail-video" controls playsinline style="display:none;" class="photo-detail-video"></video>
             </div>
             <div class="photo-detail-sidebar">
                 <div class="photo-detail-header">
