@@ -839,7 +839,7 @@ document.getElementById('detail-staging-approve').addEventListener('click', asyn
     // Close the modal after approval
     closePhotoDetail();
 });
-});
+
 
 document.getElementById('detail-staging-edit').addEventListener('click', () => {
     if (!currentDetailPhoto) return;
