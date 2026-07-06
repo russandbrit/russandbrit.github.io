@@ -561,9 +561,9 @@
 
         <section class="help-section" id="admin-approval">
             <h2><span class="section-icon">✅</span> Admin: Approving Photos <span class="admin-badge">Admin</span></h2>
-            <p>When guests upload photos, they appear in the <strong>Pending Approval</strong> section at the top of the page, <strong>grouped by uploader</strong>.</p>
-            <h3>Grouped by Uploader</h3>
-            <p>Each upload session is shown as a separate collapsible group with the uploader's <strong>name</strong>, <strong>caption</strong> (if entered), <strong>file count</strong>, and <strong>timestamp</strong>. Groups are collapsed by default — click the header to expand.</p>
+            <p>When guests upload photos, they appear in the <strong>Pending Approval</strong> section at the top of the page, <strong>grouped by upload session</strong>.</p>
+            <h3>Grouped by Upload Session</h3>
+            <p>Each time a guest uploads files, a unique session is created. Even if the same person uploads twice, each batch appears as a <strong>separate collapsible group</strong> showing the uploader's <strong>name</strong>, <strong>caption</strong> (if entered), <strong>file count</strong>, and <strong>timestamp</strong>. Groups are collapsed by default — click the header to expand. Newest uploads appear first.</p>
             <h3>Per-Group Actions</h3>
             <p>Each group has its own action bar:</p>
             <ul>
@@ -572,19 +572,16 @@
                 <li><strong>✕ Reject All (N)</strong> — Reject and delete the entire group (with confirmation)</li>
             </ul>
             <h3>Individual Actions</h3>
+            <p>Each photo within a group has its own buttons:</p>
             <ul>
                 <li><strong>✓ Approve</strong> — Adds the photo to the gallery</li>
                 <li><strong>✎ Edit</strong> — Opens the photo editor before approving</li>
                 <li><strong>✕ Reject</strong> — Permanently deletes the photo</li>
             </ul>
-            <h3>Global Batch Selection</h3>
-            <ol class="step-list">
-                <li>Click the <strong>checkbox</strong> on individual photos to select them (gold outline shows selection)</li>
-                <li>Use the global <strong>Select All</strong> at the top to toggle all photos across all groups</li>
-                <li>Click <strong>✓ Approve Selected (N)</strong> to batch approve</li>
-                <li>Click <strong>✕ Reject Selected (N)</strong> to batch delete (with confirmation)</li>
-            </ol>
-            <p>You can also use <strong>✓ Approve All</strong> at the top to approve everything across all groups at once.</p>
+            <div class="callout">
+                <div class="callout-title">💡 Tip</div>
+                <p>The total pending count is shown at the top of the section. Expand individual groups to review and approve each upload batch separately.</p>
+            </div>
         </section>
 
         <section class="help-section" id="admin-editing">
