@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real-time listener on downloads page for live updates
 - Video cleanup on modal close (stops playback when closing detail/lightbox)
 - Downloads link in navigation bar
+- **Send to Pending** — Admin can send an approved photo/video back to Pending Approval from the detail modal via `↩ Send to Pending` button
 
 ### Changed
 - Zip filename format: `UploaderName-MMDDYY-Random.zip` (e.g. `Dad-070526-42.zip`)
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Firestore photo documents now include `mediaType` field (`'image'` or `'video'`)
 - Downloads page heading: "Photo & Video Zips"
 - Help page (`help.html`) updated with all v3.0.0 features: video uploads, zip downloads, Downloads page, admin downloads management, grouped approval, and collapsible sections
+- Gallery description text updated
 
 ## [2.9.0] - 2026-07-05
 
