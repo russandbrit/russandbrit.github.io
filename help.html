@@ -394,7 +394,9 @@
                 <div>
                     <a href="#browsing">Browsing the Gallery</a>
                     <a href="#liking">Liking &amp; Commenting</a>
-                    <a href="#uploading">Uploading Photos</a>
+                    <a href="#uploading">Uploading Photos &amp; Videos</a>
+                    <a href="#zip">Zip File Downloads</a>
+                    <a href="#downloads">Downloads Page</a>
                     <a href="#guestbook">Signing the Guestbook</a>
                     <a href="#lightbox">Viewing Photos Full-Screen</a>
                 </div>
@@ -403,6 +405,7 @@
                     <a href="#admin-approval">Admin: Approving Photos</a>
                     <a href="#admin-editing">Admin: Editing Photos</a>
                     <a href="#admin-galleries">Admin: Managing Galleries</a>
+                    <a href="#admin-downloads">Admin: Managing Downloads</a>
                     <a href="#admin-moderation">Admin: Moderation Tools</a>
                     <a href="#keyboard">Keyboard Shortcuts</a>
                 </div>
@@ -447,19 +450,24 @@
         </section>
 
         <section class="help-section" id="uploading">
-            <h2><span class="section-icon">📤</span> Uploading Photos</h2>
+            <h2><span class="section-icon">📤</span> Uploading Photos &amp; Videos</h2>
             <p>Share your favorite moments from the celebration!</p>
             <ol class="step-list">
-                <li>Scroll to the <strong>Share Your Photos</strong> section</li>
-                <li><strong>Click the upload area</strong> or drag and drop your photos into it</li>
-                <li>Preview your photos — you can <strong>remove</strong> (✕) or <strong>edit</strong> (✎) each one before submitting</li>
+                <li>Scroll to the <strong>Share Your Photos &amp; Videos</strong> section</li>
+                <li><strong>Click the upload area</strong> or drag and drop your files into it</li>
+                <li>Preview your files — you can <strong>remove</strong> (✕) any file or <strong>edit</strong> (✎) photos before submitting</li>
                 <li>Enter your <strong>name</strong> and an optional <strong>caption</strong></li>
-                <li>Click <strong>Upload Photos</strong></li>
+                <li>Click <strong>Upload Files</strong></li>
                 <li>Photos are automatically converted to JPG and sent for admin review</li>
             </ol>
+            <h3>Supported File Types</h3>
+            <ul>
+                <li><strong>Photos</strong> — JPG, PNG, WEBP (max 10MB each)</li>
+                <li><strong>Videos</strong> — MP4, MOV, WEBM (max 100MB each)</li>
+            </ul>
             <div class="callout callout-warning">
                 <div class="callout-title">⚠️ Note</div>
-                <p>Uploaded photos won't appear in the gallery immediately — an admin needs to approve them first. This usually happens quickly!</p>
+                <p>Uploaded files won't appear in the gallery immediately — an admin needs to approve them first. This usually happens quickly!</p>
             </div>
             <h3>Photo Editor</h3>
             <p>Before uploading, you can edit each photo with built-in tools:</p>
@@ -469,6 +477,34 @@
                 <li><strong>Crop</strong> — Select a region to crop</li>
                 <li><strong>Rotate</strong> — Rotate the photo 90° at a time</li>
                 <li><strong>Reset All</strong> — Return to the original unedited photo</li>
+            </ul>
+            <h3>Videos in the Gallery</h3>
+            <p>Videos display in the gallery with a <strong>play button overlay</strong> and a gold <strong>"VIDEO" badge</strong>. Click a video to play it in the detail modal or full-screen lightbox. Playback stops automatically when you close the viewer.</p>
+        </section>
+
+        <section class="help-section" id="zip">
+            <h2><span class="section-icon">📦</span> Zip File Downloads</h2>
+            <p>You can bundle your uploaded files into a downloadable zip file instead of adding them to the gallery.</p>
+            <ol class="step-list">
+                <li>Select your photos and/or videos in the upload area</li>
+                <li>Check the <strong>"Make zip file download only"</strong> checkbox</li>
+                <li>Enter your <strong>name</strong> and click <strong>Upload Files</strong></li>
+                <li>Your files are bundled into a .zip and uploaded to the Downloads page</li>
+            </ol>
+            <div class="callout">
+                <div class="callout-title">💡 How it works</div>
+                <p>When "zip only" is checked, files are <strong>not</strong> added to the gallery or sent for approval. They go directly to the <a href="downloads.html">Downloads page</a> as a single .zip file. The zip filename uses the format: <strong>YourName-MMDDYY-Random.zip</strong></p>
+            </div>
+        </section>
+
+        <section class="help-section" id="downloads">
+            <h2><span class="section-icon">💾</span> Downloads Page</h2>
+            <p>The <a href="downloads.html">Downloads page</a> lists all zip files created by guests. Anyone can access this page.</p>
+            <ul>
+                <li>Zip files are sorted alphabetically by filename</li>
+                <li>Each card shows the <strong>uploader name</strong>, <strong>date</strong>, <strong>file count</strong>, and <strong>size</strong></li>
+                <li>Click <strong>Download</strong> to save the zip file to your device</li>
+                <li>The list updates in real-time — new zips appear automatically</li>
             </ul>
         </section>
 
@@ -525,21 +561,30 @@
 
         <section class="help-section" id="admin-approval">
             <h2><span class="section-icon">✅</span> Admin: Approving Photos <span class="admin-badge">Admin</span></h2>
-            <p>When guests upload photos, they appear in the <strong>Pending Approval</strong> section at the top of the page.</p>
+            <p>When guests upload photos, they appear in the <strong>Pending Approval</strong> section at the top of the page, <strong>grouped by uploader</strong>.</p>
+            <h3>Grouped by Uploader</h3>
+            <p>Each upload session is shown as a separate collapsible group with the uploader's <strong>name</strong>, <strong>caption</strong> (if entered), <strong>file count</strong>, and <strong>timestamp</strong>. Groups are collapsed by default — click the header to expand.</p>
+            <h3>Per-Group Actions</h3>
+            <p>Each group has its own action bar:</p>
+            <ul>
+                <li><strong>Select All</strong> — Select all photos in that group</li>
+                <li><strong>✓ Approve All (N)</strong> — Approve the entire group at once</li>
+                <li><strong>✕ Reject All (N)</strong> — Reject and delete the entire group (with confirmation)</li>
+            </ul>
             <h3>Individual Actions</h3>
             <ul>
                 <li><strong>✓ Approve</strong> — Adds the photo to the gallery</li>
                 <li><strong>✎ Edit</strong> — Opens the photo editor before approving</li>
                 <li><strong>✕ Reject</strong> — Permanently deletes the photo</li>
             </ul>
-            <h3>Batch Selection</h3>
+            <h3>Global Batch Selection</h3>
             <ol class="step-list">
                 <li>Click the <strong>checkbox</strong> on individual photos to select them (gold outline shows selection)</li>
-                <li>Use <strong>Select All</strong> to toggle all photos</li>
+                <li>Use the global <strong>Select All</strong> at the top to toggle all photos across all groups</li>
                 <li>Click <strong>✓ Approve Selected (N)</strong> to batch approve</li>
                 <li>Click <strong>✕ Reject Selected (N)</strong> to batch delete (with confirmation)</li>
             </ol>
-            <p>You can also use <strong>✓ Approve All</strong> to approve everything at once.</p>
+            <p>You can also use <strong>✓ Approve All</strong> at the top to approve everything across all groups at once.</p>
         </section>
 
         <section class="help-section" id="admin-editing">
@@ -591,6 +636,24 @@
             </ul>
         </section>
 
+        <section class="help-section" id="admin-downloads">
+            <h2><span class="section-icon">📦</span> Admin: Managing Downloads <span class="admin-badge">Admin</span></h2>
+            <p>On the <a href="downloads.html">Downloads page</a>, admin mode adds <strong>rename</strong> and <strong>delete</strong> buttons to each zip file card.</p>
+            <h3>Renaming a Zip File</h3>
+            <ol class="step-list">
+                <li>Enter admin mode (lock icon → passcode)</li>
+                <li>Click the <strong>pencil icon</strong> (✎) on a zip file card</li>
+                <li>Enter the new filename in the modal (the .zip extension is added automatically)</li>
+                <li>Click <strong>Save</strong></li>
+            </ol>
+            <h3>Deleting a Zip File</h3>
+            <ol class="step-list">
+                <li>Click the <strong>trash icon</strong> (🗑) on a zip file card</li>
+                <li>Confirm deletion in the modal</li>
+                <li>The zip is removed from both the database and cloud storage</li>
+            </ol>
+        </section>
+
         <section class="help-section" id="admin-moderation">
             <h2><span class="section-icon">🛡️</span> Admin: Moderation Tools <span class="admin-badge">Admin</span></h2>
             <h3>Deleting Photos</h3>
@@ -604,7 +667,7 @@
 
             <div class="callout callout-warning">
                 <div class="callout-title">⚠️ Important</div>
-                <p>Deletions are permanent. Deleted photos are removed from both the database and cloud storage and cannot be recovered.</p>
+                <p>Deletions are permanent. Deleted photos, videos, and zip files are removed from both the database and cloud storage and cannot be recovered.</p>
             </div>
         </section>
 
