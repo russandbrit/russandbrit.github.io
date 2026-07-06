@@ -836,14 +836,9 @@ document.getElementById('detail-staging-approve').addEventListener('click', asyn
     if (!currentDetailPhoto) return;
     const photoId = currentDetailPhoto.id;
     await approvePhoto(photoId);
-    // Advance to next or close if none left
-    const list = getDetailList();
-    if (list.length === 0) {
-        closePhotoDetail();
-    } else {
-        detailIndex = Math.min(detailIndex, list.length - 1);
-        openPhotoDetail(list[detailIndex]);
-    }
+    // Close the modal after approval
+    closePhotoDetail();
+});
 });
 
 document.getElementById('detail-staging-edit').addEventListener('click', () => {
