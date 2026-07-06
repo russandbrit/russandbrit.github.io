@@ -1230,17 +1230,15 @@ uploadForm.addEventListener('submit', async (e) => {
                 progressText.textContent = `Compressing zip: ${Math.round(meta.percent)}%...`;
             });
 
-            // Generate zip filename: MMDDYYHHmmss{name}.zip
+            // Generate zip filename: name-MMDDYY-random.zip
             const now = new Date();
             const pad = (n) => String(n).padStart(2, '0');
             const dateStr = pad(now.getMonth() + 1) +
                            pad(now.getDate()) +
-                           pad(now.getFullYear() % 100) +
-                           pad(now.getHours()) +
-                           pad(now.getMinutes()) +
-                           pad(now.getSeconds());
+                           pad(now.getFullYear() % 100);
             const safeName = name.replace(/[^a-zA-Z0-9]/g, '');
-            const zipFilename = `${dateStr}{${safeName}}.zip`;
+            const rand = Math.floor(Math.random() * 100) + 1;
+            const zipFilename = `${safeName}-${dateStr}-${rand}.zip`;
 
             // Upload zip to Firebase Storage under downloads/
             const zipRef = storage.ref(`downloads/${zipFilename}`);
