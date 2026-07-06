@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Admin Rename on Downloads** — Admin can rename zip files via pencil icon; modal pre-fills current name, auto-appends `.zip`
 - **Grouped Pending Approval** — Staging section groups photos by upload session (not just name); each session gets its own collapsible group with name, caption, file count, and timestamp. Session IDs include uploader name and caption (e.g. `Dad_WeddingPhotos_a7b3c9`)
 - **Collapsible Groups** — Staging groups collapsed by default; click header to expand/collapse with chevron animation
-- **Per-Group Actions** — Each uploader group has its own Select All, Approve All, and Reject All buttons
+- **Per-Group Actions** — Each group has its own Select All, Approve All, and Reject All buttons; global staging actions bar removed
 - Admin toggle, passcode modal, and session persistence on Downloads page
 - JSZip library (CDN) for client-side zip creation
 - Real-time listener on downloads page for live updates
