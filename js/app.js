@@ -1186,117 +1186,132 @@ uploadForm.addEventListener('submit', async (e) => {
 
     let uploaded = 0;
     const total = selectedFiles.length;
-    const uploadedBlobs = []; // for zip creation
-    const uploadedNames = []; // original filenames for zip
-
     try {
-        for (const file of selectedFiles) {
-            const fileId = generateId();
-            const fileIsVideo = isVideoFile(file);
+        if (makeZip) {
+            // === ZIP-ONLY MODE: no individual uploads, just create zip ===
+            const zipBlobs = [];
+            const zipNames = [];
 
-            let uploadBlob;
-            let storagePath;
-            let contentType;
+            for (const file of selectedFiles) {
+                const fileId = generateId();
+                const fileIsVideo = isVideoFile(file);
 
-            if (fileIsVideo) {
-                // Upload video directly (no conversion)
-                const ext = file.name.split('.').pop().toLowerCase() || 'mp4';
-                storagePath = `photos/${fileId}.${ext}`;
-                contentType = file.type;
-                uploadBlob = file;
-                progressText.textContent = `Uploading video ${uploaded + 1} of ${total}...`;
-            } else {
-                // Convert image to JPG before upload
-                progressText.textContent = `Converting ${uploaded + 1} of ${total} to JPG...`;
-                uploadBlob = await convertToJpg(file);
-                storagePath = `photos/${fileId}.jpg`;
-                contentType = 'image/jpeg';
+                let blob;
+                let ext;
+
+                if (fileIsVideo) {
+                    blob = file;
+                    ext = file.name.split('.').pop().toLowerCase() || 'mp4';
+                    progressText.textContent = `Preparing video ${uploaded + 1} of ${total}...`;
+                } else {
+                    progressText.textContent = `Converting ${uploaded + 1} of ${total} to JPG...`;
+                    blob = await convertToJpg(file);
+                    ext = 'jpg';
+                }
+
+                zipBlobs.push(blob);
+                zipNames.push(`${fileId}.${ext}`);
+
+                uploaded++;
+                const pct = Math.round((uploaded / total) * 50); // first 50% for prep
+                progressFill.style.width = pct + '%';
             }
 
-            const storageRef = storage.ref(storagePath);
-            const uploadTask = await storageRef.put(uploadBlob, {
-                contentType: contentType
-            });
-            const url = await uploadTask.ref.getDownloadURL();
+            // Create zip
+            progressText.textContent = 'Creating zip file...';
+            const zip = new JSZip();
+            for (let i = 0; i < zipBlobs.length; i++) {
+                zip.file(zipNames[i], zipBlobs[i]);
+            }
 
-            // Save metadata to Firestore (pending approval)
-            await db.collection('photos').add({
-                url: url,
-                originalUrl: url,
-                name: name,
-                caption: caption,
-                type: 'guest',
-                mediaType: fileIsVideo ? 'video' : 'image',
-                status: 'pending',
+            const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
+                const pct = 50 + Math.round(meta.percent * 0.3); // 50-80%
+                progressFill.style.width = pct + '%';
+                progressText.textContent = `Compressing zip: ${Math.round(meta.percent)}%...`;
+            });
+
+            // Generate zip filename: MMDDYYHHmmss{name}.zip
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const dateStr = pad(now.getMonth() + 1) +
+                           pad(now.getDate()) +
+                           pad(now.getFullYear() % 100) +
+                           pad(now.getHours()) +
+                           pad(now.getMinutes()) +
+                           pad(now.getSeconds());
+            const safeName = name.replace(/[^a-zA-Z0-9]/g, '');
+            const zipFilename = `${dateStr}{${safeName}}.zip`;
+
+            // Upload zip to Firebase Storage under downloads/
+            const zipRef = storage.ref(`downloads/${zipFilename}`);
+            progressText.textContent = 'Uploading zip file...';
+            progressFill.style.width = '80%';
+            const zipUpload = await zipRef.put(zipBlob, {
+                contentType: 'application/zip'
+            });
+            const zipUrl = await zipUpload.ref.getDownloadURL();
+            progressFill.style.width = '95%';
+
+            // Save zip metadata to Firestore
+            await db.collection('downloads').add({
+                filename: zipFilename,
+                url: zipUrl,
+                uploaderName: name,
+                fileCount: zipBlobs.length,
+                size: zipBlob.size,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // Store for zip creation
-            if (makeZip) {
-                uploadedBlobs.push(uploadBlob);
-                const origExt = fileIsVideo
-                    ? (file.name.split('.').pop().toLowerCase() || 'mp4')
-                    : 'jpg';
-                uploadedNames.push(`${fileId}.${origExt}`);
-            }
-
-            uploaded++;
-            const pct = Math.round((uploaded / total) * 100);
-            progressFill.style.width = pct + '%';
-            progressText.textContent = `Uploading ${uploaded} of ${total}...`;
-        }
-
-        // Create zip file if requested
-        if (makeZip && uploadedBlobs.length > 0) {
-            progressText.textContent = 'Creating zip file...';
             progressFill.style.width = '100%';
+            showToast(`Zip created with ${uploaded} file${uploaded > 1 ? 's' : ''}! 📦 Available on Downloads page.`, 'success');
 
-            try {
-                const zip = new JSZip();
-                for (let i = 0; i < uploadedBlobs.length; i++) {
-                    zip.file(uploadedNames[i], uploadedBlobs[i]);
+        } else {
+            // === NORMAL MODE: individual uploads with pending approval ===
+            for (const file of selectedFiles) {
+                const fileId = generateId();
+                const fileIsVideo = isVideoFile(file);
+
+                let uploadBlob;
+                let storagePath;
+                let contentType;
+
+                if (fileIsVideo) {
+                    const ext = file.name.split('.').pop().toLowerCase() || 'mp4';
+                    storagePath = `photos/${fileId}.${ext}`;
+                    contentType = file.type;
+                    uploadBlob = file;
+                    progressText.textContent = `Uploading video ${uploaded + 1} of ${total}...`;
+                } else {
+                    progressText.textContent = `Converting ${uploaded + 1} of ${total} to JPG...`;
+                    uploadBlob = await convertToJpg(file);
+                    storagePath = `photos/${fileId}.jpg`;
+                    contentType = 'image/jpeg';
                 }
 
-                const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
-                    progressText.textContent = `Compressing zip: ${Math.round(meta.percent)}%...`;
+                const storageRef = storage.ref(storagePath);
+                const uploadTask = await storageRef.put(uploadBlob, {
+                    contentType: contentType
                 });
+                const url = await uploadTask.ref.getDownloadURL();
 
-                // Generate zip filename: MMDDYYHHmmss{name}.zip
-                const now = new Date();
-                const pad = (n) => String(n).padStart(2, '0');
-                const dateStr = pad(now.getMonth() + 1) +
-                               pad(now.getDate()) +
-                               pad(now.getFullYear() % 100) +
-                               pad(now.getHours()) +
-                               pad(now.getMinutes()) +
-                               pad(now.getSeconds());
-                const safeName = name.replace(/[^a-zA-Z0-9]/g, '');
-                const zipFilename = `${dateStr}{${safeName}}.zip`;
-
-                // Upload zip to Firebase Storage under downloads/
-                const zipRef = storage.ref(`downloads/${zipFilename}`);
-                progressText.textContent = 'Uploading zip file...';
-                const zipUpload = await zipRef.put(zipBlob, {
-                    contentType: 'application/zip'
-                });
-                const zipUrl = await zipUpload.ref.getDownloadURL();
-
-                // Save zip metadata to Firestore
-                await db.collection('downloads').add({
-                    filename: zipFilename,
-                    url: zipUrl,
-                    uploaderName: name,
-                    fileCount: uploadedBlobs.length,
-                    size: zipBlob.size,
+                // Save metadata to Firestore (pending approval)
+                await db.collection('photos').add({
+                    url: url,
+                    originalUrl: url,
+                    name: name,
+                    caption: caption,
+                    type: 'guest',
+                    mediaType: fileIsVideo ? 'video' : 'image',
+                    status: 'pending',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                showToast(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded + zip created! 📦`, 'success');
-            } catch (zipError) {
-                console.error('Zip creation error:', zipError);
-                showToast(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded but zip creation failed.`, 'warning');
+                uploaded++;
+                const pct = Math.round((uploaded / total) * 100);
+                progressFill.style.width = pct + '%';
+                progressText.textContent = `Uploading ${uploaded} of ${total}...`;
             }
-        } else {
+
             showToast(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded! Pending admin approval.`, 'success');
         }
 
