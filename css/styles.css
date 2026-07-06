@@ -3147,3 +3147,41 @@ body.admin-mode .nav {
         gap: var(--space-xs);
     }
 }
+
+/* Download card actions (download + delete) */
+.download-card-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+}
+
+/* Admin delete button on download cards */
+.download-delete-btn {
+    display: none;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+body.admin-mode .download-delete-btn {
+    display: flex;
+}
+
+.download-delete-btn:hover {
+    transform: scale(1.08);
+}
+
+@media (max-width: 768px) {
+    .download-card-actions {
+        width: 100%;
+    }
+    .download-card-actions .download-card-btn {
+        flex: 1;
+    }
+}
