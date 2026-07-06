@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Downloads page heading: "Photo & Video Zips"
 - Help page (`help.html`) updated with all v3.0.0 features: video uploads, zip downloads, Downloads page, admin downloads management, grouped approval, and collapsible sections
 - Gallery description text updated
+- Edit button (✎) hidden for videos in gallery grid, staging grid, and detail modal since videos cannot be edited with the photo editor
 
 ## [2.9.0] - 2026-07-05
 
