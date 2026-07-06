@@ -1,7 +1,12 @@
 [
   {
-    "origin": ["https://russandbrit.github.io"],
+    "origin": [
+      "https://russandbrit.us",
+      "https://www.russandbrit.us",
+      "https://russandbrit.github.io"
+    ],
     "method": ["GET"],
+    "responseHeader": ["Content-Type"],
     "maxAgeSeconds": 3600
   }
 ]
